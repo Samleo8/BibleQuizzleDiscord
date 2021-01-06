@@ -24,20 +24,22 @@ bot.on('ready', () => {
 });
 
 // Bot Commands
+const cmdChar = '!';
+
 Object.keys(botCommands)
     .map(key => {
-        bot.commands.set("!"+botCommands[key].name, botCommands[key]);
+        bot.commands.set(cmdChar + botCommands[key].name, botCommands[key]);
     });
 
 bot.on('message', (msg) => {
     const args = msg.content.split(/ +/);
     const command = args.shift()
         .toLowerCase();
-    
-    console.info(`Called command: ${command}`);
 
     // TODO: Allow other message reading
     if (!bot.commands.has(command)) return;
+
+    console.info(`Called command: ${command}`);
 
     try {
         bot.commands.get(command)
