@@ -1,0 +1,30 @@
+{
+    "name": "biblequizzlediscord",
+    "version": "1.0.0",
+    "description": "Bible trivia Discord bot",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": ""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Samleo8/BibleQuizzleDiscord.git"
+    },
+    "keywords": [
+        "bible",
+        "trivia",
+        "quiz",
+        "discord",
+        "bot"
+    ],
+    "author": "Samuel Leong <samleocw+discord@gmail.com>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Samleo8/BibleQuizzleDiscord/issues"
+    },
+    "homepage": "https://github.com/Samleo8/BibleQuizzleDiscord#README.md",
+    "dependencies": {
+        "discord.js": "^12.5.1"
+    }
+}
