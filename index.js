@@ -26,7 +26,7 @@ bot.on('ready', () => {
 // Bot Commands
 Object.keys(botCommands)
     .map(key => {
-        bot.commands.set(botCommands[key].name, botCommands[key]);
+        bot.commands.set("!"+botCommands[key].name, botCommands[key]);
     });
 
 bot.on('message', (msg) => {
