@@ -4,7 +4,8 @@
  * 
  * Uses discord.js
  */
-require('dotenv').config();
+require('dotenv')
+    .config();
 
 // Setup
 const Discord = require('discord.js');
@@ -19,15 +20,23 @@ const TOKEN = process.env.TOKEN;
 bot.login(TOKEN);
 
 bot.on('ready', () => {
-    console.info(`Logged in as ${bot.user.tag}!`); 
+    console.info(`Logged in as ${bot.user.tag}!`);
 });
+
+// Bot Commands
+Object.keys(botCommands)
+    .map(key => {
+        bot.commands.set(botCommands[key].name, botCommands[key]);
+    });
 
 bot.on('message', (msg) => {
     const args = msg.content.split(/ +/);
     const command = args.shift()
         .toLowerCase();
+    
     console.info(`Called command: ${command}`);
 
+    // TODO: Allow other message reading
     if (!bot.commands.has(command)) return;
 
     try {
@@ -37,10 +46,5 @@ bot.on('message', (msg) => {
     catch (error) {
         console.error(error);
         msg.reply('there was an error trying to execute that command!');
-    }
-
-    if (msg.content == 'penguins') {
-        msg.reply('penguins are cute and cuddly indeed');
-        // msg.channel.send('penguins are cute and cuddly indeed');
     }
 });

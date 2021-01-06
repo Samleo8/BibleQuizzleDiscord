@@ -4,5 +4,5 @@
  */
 
  module.exports = {
-    ping: require('./ping'),
+    penguins: require('./penguins'),
  };
