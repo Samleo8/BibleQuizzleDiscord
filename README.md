@@ -5,4 +5,6 @@
 
 Bible trivia discord bot that is the port of my original Telegram bot at [@BibleQuizzleBot](https://t.me/BibleQuizzleBot)!
 
+[Add the bot to your Discord server!](https://discord.com/oauth2/authorize?client_id=748910073635537006&permissions=75776&scope=bot)
+
 Suggest new questions and answers in the Google Form [here](https://forms.gle/aqZ3MK8QrBGzv9PEA)!
