@@ -37,7 +37,10 @@ bot.on('message', (msg) => {
         .toLowerCase();
 
     // TODO: Allow other message reading
-    if (!bot.commands.has(command)) return;
+    if (!bot.commands.has(command)) {
+        console.info('Read message');
+        return;
+    }
 
     console.info(`Called command: ${command}`);
 
