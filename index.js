@@ -44,17 +44,15 @@ Object.keys(botCommands)
     });
 
 // Make Category Array from `categories`
-let catArr = [],
-    rowArr = [];
-catArr[0] = ["📖 " + categories[0]]; // First row is single "All" button
-const nButtonsOnARow = 2;
-for (i = 1; i < categories.length; i += nButtonsOnARow) {
-    rowArr = [];
-    for (j = 0; j < nButtonsOnARow; j++) {
-        if (i + j < categories.length)
-            rowArr.push("📖 " + categories[i + j]);
-    }
-    catArr.push(rowArr);
+let catEmbed = new Discord.MessageEmbed()
+    .setTitle("Categories")
+    .setDescription("Send a category with `!category <valid category>`");
+
+// First row is single "All" button
+catEmbed.addField(categories[0], "📖 Category: " + categories[0].toLowerCase(), false);
+
+for (i = 1; i < categories.length; i++) {
+    catEmbed.addField(categories[i], "📖 Category: " + categories[i].toLowerCase(), true);
 }
 
 // Initialise question object
@@ -83,6 +81,7 @@ compileQuestionsList = () => {
 compileQuestionsList();
 
 /*==================WELCOME MESSAGE===================*/
+
 // Welcome message (if applicable)
 bot.on('guildCreate', guild => {
     guild.channels.find('quizzle', 'game', 'games')
@@ -102,18 +101,22 @@ bot.on('message', (msg) => {
     if (msg.content.startsWith(cmdChar)) {
         console.info(`Called command: ${command}`);
 
-        if (!bot.commands.has(command)) {
+        if (command == `${cmdChar}start`) {
+            msg.reply(catEmbed);
+        }
+        else if (!bot.commands.has(command)) {
             msg.reply(`${command} is an invalid command. Send ${cmdChar}help for valid commands.`);
             return;
         }
-
-        try {
-            bot.commands.get(command)
-                .execute(msg, args);
-        }
-        catch (error) {
-            console.error(error);
-            msg.reply('Oops, there was an error trying to execute that command!');
+        else {
+            try {
+                bot.commands.get(command)
+                    .execute(msg, args);
+            }
+            catch (error) {
+                console.error(error);
+                msg.reply('Oops, there was an error trying to execute that command!');
+            }
         }
     }
     // Normal message (game)
