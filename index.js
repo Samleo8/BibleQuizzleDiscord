@@ -30,8 +30,11 @@ bot.on('ready', () => {
 const {
     cmdChar,
     welcomeMessage,
-    helpMessage
+    categories, 
+    regex
 } = require('./constants.js');
+
+let i, j;
 
 // Bot Commands
 Object.keys(botCommands)

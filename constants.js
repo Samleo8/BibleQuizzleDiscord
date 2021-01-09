@@ -15,6 +15,15 @@ const helpMessage =
     `${cmdChar}eggs - Hmm, what could this be?\n` +
     `${cmdChar}help - Displays this help message.\n`;
 
+const categories = ["All", "Old Testament", "New Testament", "Gospels", "Prophets", "Miracles", "Kings/Judges",
+  "Exodus"];
+
+const regex = {};
+regex.alphanum = new RegExp("[A-Z0-9]", "gi");
+regex.non_alphanum = new RegExp("[^A-Z0-9]", "gi");
+
+// const ADMIN_ID = 413007985;
+
 module.exports = {
     name: "constants"
 };
@@ -22,3 +31,5 @@ module.exports = {
 module.exports.cmdChar = cmdChar;
 module.exports.welcomeMessage = welcomeMessage;
 module.exports.helpMessage = helpMessage;
+module.exports.regex = regex;
+module.exports.categories = categories;
