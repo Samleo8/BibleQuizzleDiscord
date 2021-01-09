@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 
 module.exports = {
     name: 'penguins',
-    description: "Who doesn't love penguins?",
+    description: "Easter egg: Who doesn't love penguins?",
     execute (msg, args) {
         const attachment = new Discord.MessageAttachment('./img/waddlingpenguin.gif');
 

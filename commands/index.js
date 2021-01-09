@@ -6,4 +6,7 @@
 module.exports = {
     penguins: require('./penguins'),
     eggs: require('./eggs'),
+    hugs: require('./hugs'),
+    sads: require('./sads'),
+    quack: require('./quack'),
 };
