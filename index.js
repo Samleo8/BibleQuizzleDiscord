@@ -17,7 +17,7 @@ bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
 
 // Get token from secret file
-const TOKEN = process.env.TOKEN;
+const TOKEN = process.env.BOT_TOKEN;
 bot.login(TOKEN);
 
 bot.on('ready', () => {
