@@ -48,8 +48,7 @@ Object.keys(botCommands)
         bot.commands.set(cmdChar + botCommands[key].name, botCommands[key]);
     });
 
-// Other commands
-bot.commands.set(cmdChar + "start", { execute: initGame });
+// NOTE: Other commands at the end
 
 // Initialise question object
 let questions = {};
@@ -227,48 +226,6 @@ nextQuestion = (ctx) => {
     );
 };
 
-/*==================MESSAGE HANDLING===================*/
-
-// Welcome message (if applicable)
-bot.on('guildCreate', guild => {
-    guild.channels.find('quizzle', 'game', 'games')
-        .send(welcomeMessage);
-});
-
-// Message and Command handling
-bot.on('message', (msg) => {
-    const args = msg.content.split(/ +/);
-    const command = args.shift()
-        .toLowerCase();
-
-    // Don't listen to bots
-    if (msg.author.bot) return;
-
-    // Commands
-    if (msg.content.startsWith(cmdChar)) {
-        console.info(`Called command: ${command}`);
-
-        if (!bot.commands.has(command)) {
-            msg.reply(`${command} is an invalid command. Send ${cmdChar}help for valid commands.`);
-            return;
-        }
-        else {
-            try {
-                bot.commands.get(command)
-                    .execute(msg, args);
-            }
-            catch (error) {
-                console.error(error);
-                msg.reply('Oops, there was an error trying to execute that command!');
-            }
-        }
-    }
-    // Normal message (game)
-    else {
-        // console.info("Read message");
-    }
-});
-
 // ================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================// 
 let initGame = (msg, _) => {
     // Set category
@@ -292,7 +249,7 @@ let initGame = (msg, _) => {
 
 // Make Category Embed from `categories`
 let catEmbed = new Discord.MessageEmbed()
-    .setTitle("Choose a Category!")
+    .setTitle("Category")
     .setDescription("Choose a category with `!category <valid category>`");
 
 // First row is single "All" button
@@ -309,21 +266,14 @@ let chooseCategory = (msg, _) => {
     msg.reply(catEmbed);
 };
 
+let roundsEmbed = new Discord.MessageEmbed()
+    .setTitle("Rounds")
+    .setDescription("Choose number of rounds/questions with `!rounds <number of rounds>`");
+
 let chooseRounds = (msg, _) => {
     Game.status = 'choosing_rounds';
 
-    return msg.reply(
-        'Number of Questions: ',
-        Extra.inReplyTo(ctx.message.message_id)
-        .markup(
-            Markup.keyboard([
-				["🕐 10", "🕑 20"],
-				["🕔 50", "🕙 100"]
-			])
-            .oneTime()
-            .resize()
-        )
-    );
+    return msg.reply(roundsEmbed);
 };
 
 // ================UI FOR QUESTIONS, ANSWERS AND SCORES=================// 
@@ -367,18 +317,11 @@ _getReference = () => {
 };
 
 // Get user's name from ctx
-_getName = (ctx) => {
-    let username = ctx.message.from.username;
-    let first_name = ctx.message.from.first_name;
-    let last_name = ctx.message.from.last_name;
-
-    if (first_name && last_name) return first_name + " " + last_name;
-    if (!first_name && !last_name) return username;
-    if (first_name) return first_name;
-
-    return last_name;
+_getName = (msg) => {
+    return msg.author.username;
 };
 
+// TODO: Embedded thing for this
 _showQuestion = (ctx, questionText, categoriesText, hintText) => {
     ctx.reply(
         "<b>BIBLE QUIZZLE</b>\n" +
@@ -453,3 +396,49 @@ _showAnswer = (ctx) => {
         Game.interval * 1000 * 0.5
     );
 };
+
+/*==================MESSAGE HANDLING===================*/
+// Other commands
+bot.commands.set(cmdChar + "start", {
+    execute: initGame
+});
+
+// Welcome message (if applicable)
+bot.on('guildCreate', guild => {
+    guild.channels.find('quizzle', 'game', 'games')
+        .send(welcomeMessage);
+});
+
+// Message and Command handling
+bot.on('message', (msg) => {
+    const args = msg.content.split(/ +/);
+    const command = args.shift()
+        .toLowerCase();
+
+    // Don't listen to bots
+    if (msg.author.bot) return;
+
+    // Commands
+    if (msg.content.startsWith(cmdChar)) {
+        console.info(`Called command: ${command}`);
+
+        if (!bot.commands.has(command)) {
+            msg.reply(`${command} is an invalid command. Send ${cmdChar}help for valid commands.`);
+            return;
+        }
+        else {
+            try {
+                bot.commands.get(command)
+                    .execute(msg, args);
+            }
+            catch (error) {
+                console.error(error);
+                msg.reply('Oops, there was an error trying to execute that command!');
+            }
+        }
+    }
+    // Normal message (game)
+    else {
+        // console.info("Read message");
+    }
+});
