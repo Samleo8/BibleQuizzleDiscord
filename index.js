@@ -51,20 +51,26 @@ bot.on('message', (msg) => {
     // Don't listen to bots
     if (msg.author.bot) return;
 
-    console.info(`Called command: ${command}`);
+    // Commands
+    if (msg.content.startsWith(cmdChar)) {
+        console.info(`Called command: ${command}`);
 
-    // TODO: Allow other message reading
-    if (!bot.commands.has(command)) {
-        // console.info('Read message');
-        return;
-    }
+        if (!bot.commands.has(command)) {
+            msg.reply(`${command} is an invalid command. Send ${cmdChar}help for valid commands.`);
+            return;
+        }
 
-    try {
-        bot.commands.get(command)
-            .execute(msg, args);
+        try {
+            bot.commands.get(command)
+                .execute(msg, args);
+        }
+        catch (error) {
+            console.error(error);
+            msg.reply('Oops, there was an error trying to execute that command!');
+        }
     }
-    catch (error) {
-        console.error(error);
-        msg.reply('Oops, there was an error trying to execute that command!');
+    // Normal message (game)
+    else{
+        // console.info("Read message");
     }
 });
