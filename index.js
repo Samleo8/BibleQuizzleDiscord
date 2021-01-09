@@ -252,13 +252,14 @@ let catEmbed = new Discord.MessageEmbed()
     .setTitle("Categories")
     .setDescription("Choose a valid category with `!category <valid category>`");
 
-
 // First row is single "All" button
 // catEmbed.addField('\u200B', '\u200B', false); //empty line
-catEmbed.addField(categories[0], "📖`" + categories[0].toLowerCase().replace(regex.non_alphanum, "_") + "`", false);
+catEmbed.addField(categories[0], "📖`" + categories[0].toLowerCase()
+    .replace(regex.non_alphanum, "_") + "`", false);
 
 for (i = 1; i < categories.length; i++) {
-    catEmbed.addField(categories[i], "📖`" + categories[i].toLowerCase().replace(regex.non_alphanum, "_") + "`", true);
+    catEmbed.addField(categories[i], "📖`" + categories[i].toLowerCase()
+        .replace(regex.non_alphanum, "_") + "`", true);
 }
 
 let chooseCategory = (msg, _) => {
@@ -301,17 +302,42 @@ let setCategory = (msg, args) => {
 
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
-    .setDescription("Choose number of rounds/questions with `!rounds <number of rounds>`")
-    .addField("Suggested", "🕐 10    🕑 20    🕔 50    🕙 100", false);
+    .setDescription(`Choose number of rounds/questions with \`${cmdChar}rounds <number of rounds>\``)
+    .addField("Suggested", "🕐 10    🕑 20    🕔 50    🕙 100", false)
+    .addField("Note", "Number of rounds should be an integer >= 1", false);
 
 let chooseRounds = (msg, _) => {
     Game.status = 'choosing_rounds';
 
-    return msg.reply(roundsEmbed);
+    return msg.reply("Please choose the number of rounds/questions:", roundsEmbed);
 };
 
 let setRounds = (msg, args) => {
+    if (Game.status != "choosing_rounds") {
+        if (Game.status == "choosing_category"){
+            ctx.reply("Please choose a category first.", categoryEmbed);
+        }
+        else {
+            ctx.reply(`Game is currently in progress. To stop the game and start a new one, first send \`${cmdChar}stop\``);
+        }
+        return;
+    }
 
+    let numRounds = args[0];
+    if (isNaN(numRounds)) {
+        msg.reply("Invalid: Specify a positive integer", roundsEmbed);
+        return;
+    }
+
+    numRounds = parseInt(numRounds);
+    if (numRounds <= 0) {
+        msg.reply("Invalid: Number of rounds should be >= 1", roundsEmbed);
+        return;
+    }
+
+    Game.rounds.total = numRounds;
+
+    startGame(msg, args);
 }
 
 // ================UI FOR QUESTIONS, ANSWERS AND SCORES=================// 
