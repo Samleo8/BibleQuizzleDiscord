@@ -10,6 +10,10 @@
 require('dotenv')
     .config();
 
+module.exports = {
+    name: "biblequizzle"
+};
+
 const fs = require('fs');
 
 const Discord = require('discord.js');
@@ -81,13 +85,66 @@ compileQuestionsList = () => {
 
 compileQuestionsList();
 
-/*==================WELCOME MESSAGE===================*/
+/*================ACTUAL GAMEPLAY=================*/
+// Initialise Game object
+let Game;
+module.exports.Game = Game;
+
+resetGame = () => {
+    let previousQuestionList = [];
+    if (Game != null && Game.hasOwnProperty("question") && Game.question.hasOwnProperty("id_list")) {
+        previousQuestionList = Game.question.id_list;
+    }
+
+    Game = {
+        "status": "choosing_category", // choosing_category, choosing_rounds, active_wait, active
+        "category": null,
+        "rounds": {
+            "current": 0,
+            "total": 10
+        },
+        "question": {
+            "id": 0, // id of question
+            "id_list": [], // store all the question ids to prevent repeat
+            "answerer": [] // person who answered the question: [ persons' name ] | [] (skipped)
+        },
+        "hints": {
+            "text": "",
+            "current": 0,
+            "total": 4,
+            "charsToReveal": [],
+            "unrevealedIndex": [],
+            "points": [10, 8, 5, 3, 1]
+        },
+        "nexts": {
+            "current": {}, // object of people who put next
+            "total": 2
+        },
+        "timer": null,
+        "interval": 10, // in seconds
+        "leaderboard": {},
+        "global_leaderboard": null,
+        "idle": {
+            "questions": 0, // number of questions for which there is no user input
+            "threshold": 3, // number of questions before terminating game
+            "reset": function() {
+                this.questions = 0;
+            }
+        }
+    };
+
+    Game.question.id_list = previousQuestionList;
+};
+
+resetGame();
+
+/*==================MESSAGE HANDLING===================*/
 
 // Welcome message (if applicable)
 bot.on('guildCreate', guild => {
     guild.channels.find('quizzle', 'game', 'games')
         .send(welcomeMessage);
-})
+});
 
 // Message and Command handling
 bot.on('message', (msg) => {
