@@ -252,18 +252,19 @@ let catEmbed = new Discord.MessageEmbed()
     .setTitle("Categories")
     .setDescription("Choose a valid category with `!category <valid category>`");
 
+
 // First row is single "All" button
 catEmbed.addField('\u200B', '\u200B', false); //empty line
-catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
+catEmbed.addField(categories[0], "📖`" + categories[0].toLowerCase().replace(regex.non_alphanum, "_") + "`", false);
 
 for (i = 1; i < categories.length; i++) {
-    catEmbed.addField(categories[i], "📖 Category: `" + categories[i].toLowerCase() + "`", true);
+    catEmbed.addField(categories[i], "📖`" + categories[i].toLowerCase().replace(regex.non_alphanum, "_") + "`", true);
 }
 
 let chooseCategory = (msg, _) => {
     Game.status = 'choosing_category';
 
-    console.log(Game.status);
+    msg.reply("Please choose a category:", catEmbed);
 };
 
 let setCategory = (msg, args) => {
@@ -272,17 +273,17 @@ let setCategory = (msg, args) => {
         return;
     }
 
-    if (args.length < 1){
+    if (args.length < 1) {
         msg.reply("Please choose a proper category:", catEmbed);
         return;
     }
 
-    const heardString = args[0];
+    const heardString = args.join(" ");
     const newCategory = heardString.toLowerCase()
         .replace(regex.non_alphanum, "_");
 
     if (newCategory == null || !questions.hasOwnProperty(newCategory)) {
-        msg.reply("Invalid category: " + heardString);
+        msg.reply(`Invalid category *${heardString}*. Please choose a proper one:`, catEmbed);
         return;
     }
 
@@ -294,14 +295,14 @@ let setCategory = (msg, args) => {
 
     Game.category = newCategory;
 
+    msg.reply(`Category *${heardString}* chosen!`);
     chooseRounds(msg);
 }
 
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription("Choose number of rounds/questions with `!rounds <number of rounds>`")
-    .addField("Suggested",
-				["🕐 10", "🕑 20","🕔 50", "🕙 100"].join(" "), false);
+    .addField("Suggested", "🕐 10    🕑 20    🕔 50    🕙 100", false);
 
 let chooseRounds = (msg, _) => {
     Game.status = 'choosing_rounds';
