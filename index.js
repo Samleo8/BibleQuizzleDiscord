@@ -42,23 +42,14 @@ let i, j;
 
 /*==================WELCOME MESSAGE===================*/
 // Bot Commands
+// From ./commands folder
 Object.keys(botCommands)
     .map(key => {
         bot.commands.set(cmdChar + botCommands[key].name, botCommands[key]);
     });
 
-// Make Category Array from `categories`
-let catEmbed = new Discord.MessageEmbed()
-    .setTitle("Choose a Category!")
-    .setDescription("Choose a category with `!category <valid category>`");
-
-// First row is single "All" button
-catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
-catEmbed.addField('\u200B', '\u200B', false); //empty line
-
-for (i = 1; i < categories.length; i++) {
-    catEmbed.addField(categories[i], "📖 Category: `" + categories[i].toLowerCase() + "`", true);
-}
+// Other commands
+bot.commands.set(cmdChar + "start", { execute: initGame });
 
 // Initialise question object
 let questions = {};
@@ -138,6 +129,104 @@ resetGame = () => {
 
 resetGame();
 
+// Start Game function
+startGame = (msg, args) => {
+    Game.status = "active";
+    Game.rounds.current = 0;
+    Game.idle.reset();
+
+    nextQuestion(msg);
+};
+
+// Next Question handler
+nextQuestion = (ctx) => {
+    // Invalid state
+    if (Game.status.indexOf("active") == -1 || Game.category == null || !questions.hasOwnProperty(Game.category))
+        return;
+
+    Game.status = "active";
+
+    // Handling of rounds
+    // Check if any user input, if not stop
+    Game.rounds.current++;
+    if (Game.rounds.current > Game.rounds.total) {
+        stopGame(ctx);
+        return;
+    }
+
+    Game.idle.questions++;
+    if (Game.idle.questions > Game.idle.threshold) {
+        // log(Game.idle.questions + " " + Game.idle.threshold);
+        stopGame(ctx);
+    }
+
+    // Handling of question selection
+    if (Game.question.id_list.length == 0) {
+        // log("Reloading questions for category " + Game.category);
+
+        // Populate the id_list array with to now allow for repeats again
+        for (i = 0; i < questions[Game.category].length; i++) {
+            Game.question.id_list.push(i);
+        }
+    }
+
+    let id_ind = getRandomInt(0, Game.question.id_list.length - 1);
+    Game.question.id = Game.question.id_list[id_ind];
+    Game.question.id_list.splice(id_ind, 1);
+
+    // Reset nexts and hints
+
+    /*Total of 4 hints:
+        - -1%    |    Only the question     |    10pts
+        - 0%    |    No. of characters     |    8pts
+        - 20%    |    20% chars shown     |    5pts
+        - 50%    |    50% chars shown     |    3pts
+        - 80%    |     80% chars shown     |    1pts
+    */
+
+    Game.nexts.current = {};
+    Game.hints.current = 0;
+
+    Game.question.answerer = [];
+
+    // Settings no. of chars to reveal for each hint interval
+    let answer = _getAnswer();
+    let hints_array = [0, 0, 0.2, 0.5, 0.8]; // base percentage, starting index from 1
+    for (i = 2; i < hints_array.length; i++) {
+        // -Getting total number of alpha-numeric characters revealed in hint
+        hints_array[i] = Math.floor(hints_array[i] * answer.match(regex_alphanum)
+            .length);
+
+        // -Getting total number of NEW characters that'll need to be revealed in this hint
+        hints_array[i] -= hints_array[i - 1];
+    }
+    Game.hints.charsToReveal = hints_array;
+
+    // Setting indexes in answer that needs to be revealed
+    Game.hints.unrevealedIndex = [];
+    for (i = 0; i < answer.length; i++) {
+        if (answer[i].match(regex_alphanum)) { // ie is alphanumberic
+            Game.hints.unrevealedIndex.push(i);
+        }
+    }
+
+    // Set hint as all underscores
+    Game.hints.text = answer.replace(regex_alphanum, "_");
+
+    // Display Question
+    let questionText = _getQuestion();
+    let categoriesText = _getCategories();
+
+    _showQuestion(ctx, questionText, categoriesText);
+
+    // Handling of timer: Hint handler every `interval` seconds
+    clearTimeout(Game.timer);
+    Game.timer = setTimeout(
+        () => nextHint(ctx),
+        Game.interval * 1000
+    );
+};
+
 /*==================MESSAGE HANDLING===================*/
 
 // Welcome message (if applicable)
@@ -159,10 +248,7 @@ bot.on('message', (msg) => {
     if (msg.content.startsWith(cmdChar)) {
         console.info(`Called command: ${command}`);
 
-        if (command == `${cmdChar}start`) {
-            msg.reply(catEmbed);
-        }
-        else if (!bot.commands.has(command)) {
+        if (!bot.commands.has(command)) {
             msg.reply(`${command} is an invalid command. Send ${cmdChar}help for valid commands.`);
             return;
         }
@@ -182,3 +268,188 @@ bot.on('message', (msg) => {
         // console.info("Read message");
     }
 });
+
+// ================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================// 
+let initGame = (msg, _) => {
+    // Set category
+    // console.log("Pick a category: ", categories);
+
+    switch (Game.status) {
+        case "active":
+        case "active_wait":
+            return msg.reply(`A game is already in progress. To stop the game, type ${cmdChar}stop`);
+        case "choosing_cat":
+        case "choosing_category":
+            resetGame();
+            return chooseCategory(msg);
+        case "choosing_rounds":
+            return chooseRounds(msg);
+        default:
+            Game.status = "choosing_category";
+            return;
+    }
+};
+
+// Make Category Embed from `categories`
+let catEmbed = new Discord.MessageEmbed()
+    .setTitle("Choose a Category!")
+    .setDescription("Choose a category with `!category <valid category>`");
+
+// First row is single "All" button
+catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
+catEmbed.addField('\u200B', '\u200B', false); //empty line
+
+for (i = 1; i < categories.length; i++) {
+    catEmbed.addField(categories[i], "📖 Category: `" + categories[i].toLowerCase() + "`", true);
+}
+
+let chooseCategory = (msg, _) => {
+    Game.status = 'choosing_category';
+
+    msg.reply(catEmbed);
+};
+
+let chooseRounds = (msg, _) => {
+    Game.status = 'choosing_rounds';
+
+    return msg.reply(
+        'Number of Questions: ',
+        Extra.inReplyTo(ctx.message.message_id)
+        .markup(
+            Markup.keyboard([
+				["🕐 10", "🕑 20"],
+				["🕔 50", "🕙 100"]
+			])
+            .oneTime()
+            .resize()
+        )
+    );
+};
+
+// ================UI FOR QUESTIONS, ANSWERS AND SCORES=================// 
+_getQuestion = () => {
+    if (Game.category != null && Game.question.id != null) {
+        return questions[Game.category][Game.question.id]["question"].toString();
+    }
+
+    return "";
+};
+
+_getCategories = () => {
+    if (Game.category != null && Game.question.id != null) {
+        return questions[Game.category][Game.question.id]["categories"].join(", ")
+            .split("kings_judges")
+            .join("Kings and Judges")
+            .split("_")
+            .join(" ")
+            .toString()
+            .toTitleCase();
+    }
+
+    return "";
+};
+
+_getAnswer = () => {
+    if (Game.category != null && Game.question.id != null)
+        return questions[Game.category][Game.question.id]["answer"].toString();
+
+    return "";
+};
+
+_getReference = () => {
+    if (Game.category != null && Game.question.id != null) {
+        let _q = questions[Game.category][Game.question.id]["reference"];
+        if (_q != null /* && typeof _q != "undefined" */ )
+            return _q.toString();
+    }
+
+    return "-nil-";
+};
+
+// Get user's name from ctx
+_getName = (ctx) => {
+    let username = ctx.message.from.username;
+    let first_name = ctx.message.from.first_name;
+    let last_name = ctx.message.from.last_name;
+
+    if (first_name && last_name) return first_name + " " + last_name;
+    if (!first_name && !last_name) return username;
+    if (first_name) return first_name;
+
+    return last_name;
+};
+
+_showQuestion = (ctx, questionText, categoriesText, hintText) => {
+    ctx.reply(
+        "<b>BIBLE QUIZZLE</b>\n" +
+        "ROUND <b>" + Game.rounds.current + "</b> OF <b>" + Game.rounds.total + "</b>" +
+        " <i>[" + categoriesText + "]</i>" +
+        "\n--------------------------------\n" +
+        questionText + "\n" +
+        ((hintText == null /*|| typeof hintText == "undefined"*/ ) ? "" : ("<i>Hint: </i>" + hintText.split("")
+            .join(" "))),
+        Extra.HTML()
+        .markup((m) =>
+            m.inlineKeyboard([
+				m.callbackButton('Hint', 'hint'),
+				m.callbackButton('Next', 'next')
+			])
+        )
+    );
+};
+
+_showAnswer = (ctx) => {
+    let answerers = removeDuplicates(Game.question.answerer);
+
+    if (Game.question.answerer.length == 0) {
+        ctx.reply(
+            "😥 <b>Oh no, nobody got it right!</b>\n" +
+            "💡 The answer was: <i>" + _getAnswer() + "</i> 💡\n" +
+            "<i>Bible Reference: " + _getReference() + "</i>",
+            Extra.HTML()
+        );
+    }
+    else {
+        let scoreboardText = "";
+        let score = Game.hints.points[Game.hints.current];
+        for (i = 0; i < answerers.length; i++) {
+            scoreboardText += "<b>" + answerers[i].name + "</b> +" + score + "\n";
+
+            // Update leaderboard
+            if (Game.leaderboard[answerers[i].user_id] === undefined) {
+                // Player doesn't exist in scoreboard, create empty object
+                Game.leaderboard[answerers[i].user_id] = {
+                    "id": answerers[i].user_id,
+                    "score": 0, // score set at 0
+                    "name": answerers[i].name
+                };
+            }
+
+            Game.leaderboard[answerers[i].user_id].score = parseInt(Game.leaderboard[answerers[i].user_id].score +
+                score);
+        }
+
+        ctx.reply(
+            "✅ Correct!\n" +
+            "💡 <b>" + _getAnswer() + "</b> 💡\n" +
+            "<i>Bible Reference: " + _getReference() + "</i>\n\n" +
+            "🏅 <b>Scorer(s)</b> 🏅\n" +
+            scoreboardText,
+            Extra.HTML()
+        );
+    }
+
+    if (Game.rounds.current >= Game.rounds.total) {
+        stopGame(ctx);
+        return;
+    }
+
+    Game.status = "active_wait";
+
+    // Question shows after less time?
+    clearTimeout(Game.timer);
+    Game.timer = setTimeout(
+        () => nextQuestion(ctx),
+        Game.interval * 1000 * 0.5
+    );
+};
