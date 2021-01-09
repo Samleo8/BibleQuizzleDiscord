@@ -15,8 +15,8 @@ const helpMessage =
     `\`${cmdChar}eggs\` - Hmm, what could this be?\n` +
     `\`${cmdChar}help\` - Displays this help message.\n`;
 
-const categories = ["All", "Old Testament", "New Testament", "Gospels", "Prophets", "Miracles", "Kings/Judges",
-  "Exodus"];
+const categories = ["All", "Old Testament", "New Testament", "Gospels", "Prophets", "Miracles", "Exodus",
+    "Kings/Judges"];
 
 const regex = {};
 regex.alphanum = new RegExp("[A-Z0-9]", "gi");
