@@ -49,10 +49,11 @@ let catEmbed = new Discord.MessageEmbed()
     .setDescription("Send a category with `!category <valid category>`");
 
 // First row is single "All" button
-catEmbed.addField(categories[0], "📖 Category: " + categories[0].toLowerCase(), false);
+catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
+catEmbed.addField('\u200B', '\u200B', false); //empty line
 
 for (i = 1; i < categories.length; i++) {
-    catEmbed.addField(categories[i], "📖 Category: " + categories[i].toLowerCase(), true);
+    catEmbed.addField(categories[i], "📖 Category: `" + categories[i].toLowerCase() + "`", true);
 }
 
 // Initialise question object
