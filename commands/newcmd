@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Make appropriate directory and copy template
+mkdir $1
+cp template.js ./$1/index.js
+
+# Replace necessary text in template
+sed -i 's/REPLACEME/$1/g' ./$1/index.js
