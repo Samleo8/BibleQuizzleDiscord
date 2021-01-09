@@ -45,8 +45,8 @@ Object.keys(botCommands)
 
 // Make Category Array from `categories`
 let catEmbed = new Discord.MessageEmbed()
-    .setTitle("Categories")
-    .setDescription("Send a category with `!category <valid category>`");
+    .setTitle("Choose a Category!")
+    .setDescription("Choose a category with `!category <valid category>`");
 
 // First row is single "All" button
 catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
