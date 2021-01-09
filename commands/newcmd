@@ -18,3 +18,12 @@ cp template.js ./$1/index.js
 
 # Replace necessary text in template
 sed -i 's/REPLACEME/'$1'/g' ./$1/index.js
+
+# Add new command to index.js
+CMDTEXT="$1: require('./$1'),"
+
+# Remove end
+sed -i "s-};-    $CMDTEXT-g" ./index.js
+
+# Add accordingly
+echo "};" >> ./index.js

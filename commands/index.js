@@ -3,6 +3,7 @@
  * Commands must be in the folder
  */
 
- module.exports = {
+module.exports = {
     penguins: require('./penguins'),
- };
+    eggs: require('./eggs'),
+};
