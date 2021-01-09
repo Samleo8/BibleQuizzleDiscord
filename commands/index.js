@@ -10,4 +10,5 @@ module.exports = {
     sads: require('./sads'),
     quack: require('./quack'),
     help: require('./help'),
+    suggest: require('./suggest'),
 };

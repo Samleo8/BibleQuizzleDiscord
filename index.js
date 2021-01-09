@@ -30,24 +30,66 @@ bot.on('ready', () => {
 const {
     cmdChar,
     welcomeMessage,
-    categories, 
+    categories,
     regex
 } = require('./constants.js');
 
 let i, j;
 
+/*==================WELCOME MESSAGE===================*/
 // Bot Commands
 Object.keys(botCommands)
     .map(key => {
         bot.commands.set(cmdChar + botCommands[key].name, botCommands[key]);
     });
 
+// Make Category Array from `categories`
+let catArr = [],
+    rowArr = [];
+catArr[0] = ["📖 " + categories[0]]; // First row is single "All" button
+const nButtonsOnARow = 2;
+for (i = 1; i < categories.length; i += nButtonsOnARow) {
+    rowArr = [];
+    for (j = 0; j < nButtonsOnARow; j++) {
+        if (i + j < categories.length)
+            rowArr.push("📖 " + categories[i + j]);
+    }
+    catArr.push(rowArr);
+}
+
+// Initialise question object
+let questions = {};
+compileQuestionsList = () => {
+    questions["all"] = JSON.parse(fs.readFileSync('questions.json', 'utf8'));
+
+    let all_questions = questions["all"];
+
+    for (i in all_questions) {
+        let _cats = all_questions[i].categories;
+        if (_cats == null) continue;
+
+        for (j = 0; j < _cats.length; j++) {
+            let _cat = _cats[j].toString();
+            if (questions[_cat] === undefined) {
+                // Key doesn't exist, create empty array
+                questions[_cat] = [];
+            }
+
+            questions[_cat].push(all_questions[i]);
+        }
+    }
+};
+
+compileQuestionsList();
+
+/*==================WELCOME MESSAGE===================*/
 // Welcome message (if applicable)
 bot.on('guildCreate', guild => {
     guild.channels.find('quizzle', 'game', 'games')
         .send(welcomeMessage);
 })
 
+// Message and Command handling
 bot.on('message', (msg) => {
     const args = msg.content.split(/ +/);
     const command = args.shift()
@@ -75,7 +117,7 @@ bot.on('message', (msg) => {
         }
     }
     // Normal message (game)
-    else{
+    else {
         // console.info("Read message");
     }
 });
