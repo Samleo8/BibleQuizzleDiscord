@@ -138,7 +138,7 @@ startGame = (msg, args) => {
 };
 
 // Next Question handler
-nextQuestion = (ctx) => {
+nextQuestion = (msg) => {
     // Invalid state
     if (Game.status.indexOf("active") == -1 || Game.category == null || !questions.hasOwnProperty(Game.category))
         return;
@@ -149,14 +149,14 @@ nextQuestion = (ctx) => {
     // Check if any user input, if not stop
     Game.rounds.current++;
     if (Game.rounds.current > Game.rounds.total) {
-        stopGame(ctx);
+        stopGame(msg);
         return;
     }
 
     Game.idle.questions++;
     if (Game.idle.questions > Game.idle.threshold) {
         // log(Game.idle.questions + " " + Game.idle.threshold);
-        stopGame(ctx);
+        stopGame(msg);
     }
 
     // Handling of question selection
@@ -193,7 +193,7 @@ nextQuestion = (ctx) => {
     let hints_array = [0, 0, 0.2, 0.5, 0.8]; // base percentage, starting index from 1
     for (i = 2; i < hints_array.length; i++) {
         // -Getting total number of alpha-numeric characters revealed in hint
-        hints_array[i] = Math.floor(hints_array[i] * answer.match(regex_alphanum)
+        hints_array[i] = Math.floor(hints_array[i] * answer.match(regex.alphanum)
             .length);
 
         // -Getting total number of NEW characters that'll need to be revealed in this hint
@@ -204,24 +204,24 @@ nextQuestion = (ctx) => {
     // Setting indexes in answer that needs to be revealed
     Game.hints.unrevealedIndex = [];
     for (i = 0; i < answer.length; i++) {
-        if (answer[i].match(regex_alphanum)) { // ie is alphanumberic
+        if (answer[i].match(regex.alphanum)) { // ie is alphanumberic
             Game.hints.unrevealedIndex.push(i);
         }
     }
 
     // Set hint as all underscores
-    Game.hints.text = answer.replace(regex_alphanum, "_");
+    Game.hints.text = answer.replace(regex.alphanum, "_");
 
     // Display Question
     let questionText = _getQuestion();
     let categoriesText = _getCategories();
 
-    _showQuestion(ctx, questionText, categoriesText);
+    _showQuestion(msg, questionText, categoriesText);
 
     // Handling of timer: Hint handler every `interval` seconds
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
-        () => nextHint(ctx),
+        () => nextHint(msg),
         Game.interval * 1000
     );
 };
@@ -249,12 +249,12 @@ let initGame = (msg, _) => {
 
 // Make Category Embed from `categories`
 let catEmbed = new Discord.MessageEmbed()
-    .setTitle("Category")
-    .setDescription("Choose a category with `!category <valid category>`");
+    .setTitle("Categories")
+    .setDescription("Choose a valid category with `!category <valid category>`");
 
 // First row is single "All" button
-catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
 catEmbed.addField('\u200B', '\u200B', false); //empty line
+catEmbed.addField(categories[0], "📖 Category: `" + categories[0].toLowerCase() + "`", false);
 
 for (i = 1; i < categories.length; i++) {
     catEmbed.addField(categories[i], "📖 Category: `" + categories[i].toLowerCase() + "`", true);
@@ -263,18 +263,55 @@ for (i = 1; i < categories.length; i++) {
 let chooseCategory = (msg, _) => {
     Game.status = 'choosing_category';
 
-    msg.reply(catEmbed);
+    console.log(Game.status);
 };
 
-let roundsEmbed = new Discord.MessageEmbed()
+let setCategory = (msg, args) => {
+    if (Game.status != "choosing_category") {
+        msg.reply("A game is already in progress!");
+        return;
+    }
+
+    if (args.length < 1){
+        msg.reply("Please choose a proper category:", catEmbed);
+        return;
+    }
+
+    const heardString = args[0];
+    const newCategory = heardString.toLowerCase()
+        .replace(regex.non_alphanum, "_");
+
+    if (newCategory == null || !questions.hasOwnProperty(newCategory)) {
+        msg.reply("Invalid category: " + heardString);
+        return;
+    }
+
+    // Different category: reset list
+    if (newCategory != Game.category) {
+        // log("Question reset for category " + newCategory);
+        Game.question.id_list = [];
+    }
+
+    Game.category = newCategory;
+
+    chooseRounds(msg);
+}
+
+const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
-    .setDescription("Choose number of rounds/questions with `!rounds <number of rounds>`");
+    .setDescription("Choose number of rounds/questions with `!rounds <number of rounds>`")
+    .addField("Suggested",
+				["🕐 10", "🕑 20","🕔 50", "🕙 100"].join(" "), false);
 
 let chooseRounds = (msg, _) => {
     Game.status = 'choosing_rounds';
 
     return msg.reply(roundsEmbed);
 };
+
+let setRounds = (msg, args) => {
+
+}
 
 // ================UI FOR QUESTIONS, ANSWERS AND SCORES=================// 
 _getQuestion = () => {
@@ -316,14 +353,14 @@ _getReference = () => {
     return "-nil-";
 };
 
-// Get user's name from ctx
+// Get user's name from msg
 _getName = (msg) => {
     return msg.author.username;
 };
 
 // TODO: Embedded thing for this
-_showQuestion = (ctx, questionText, categoriesText, hintText) => {
-    ctx.reply(
+_showQuestion = (msg, questionText, categoriesText, hintText) => {
+    msg.reply(
         "<b>BIBLE QUIZZLE</b>\n" +
         "ROUND <b>" + Game.rounds.current + "</b> OF <b>" + Game.rounds.total + "</b>" +
         " <i>[" + categoriesText + "]</i>" +
@@ -341,11 +378,11 @@ _showQuestion = (ctx, questionText, categoriesText, hintText) => {
     );
 };
 
-_showAnswer = (ctx) => {
+_showAnswer = (msg) => {
     let answerers = removeDuplicates(Game.question.answerer);
 
     if (Game.question.answerer.length == 0) {
-        ctx.reply(
+        msg.reply(
             "😥 <b>Oh no, nobody got it right!</b>\n" +
             "💡 The answer was: <i>" + _getAnswer() + "</i> 💡\n" +
             "<i>Bible Reference: " + _getReference() + "</i>",
@@ -372,7 +409,7 @@ _showAnswer = (ctx) => {
                 score);
         }
 
-        ctx.reply(
+        msg.reply(
             "✅ Correct!\n" +
             "💡 <b>" + _getAnswer() + "</b> 💡\n" +
             "<i>Bible Reference: " + _getReference() + "</i>\n\n" +
@@ -383,7 +420,7 @@ _showAnswer = (ctx) => {
     }
 
     if (Game.rounds.current >= Game.rounds.total) {
-        stopGame(ctx);
+        stopGame(msg);
         return;
     }
 
@@ -392,7 +429,7 @@ _showAnswer = (ctx) => {
     // Question shows after less time?
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
-        () => nextQuestion(ctx),
+        () => nextQuestion(msg),
         Game.interval * 1000 * 0.5
     );
 };
@@ -401,6 +438,14 @@ _showAnswer = (ctx) => {
 // Other commands
 bot.commands.set(cmdChar + "start", {
     execute: initGame
+});
+
+bot.commands.set(cmdChar + "category", {
+    execute: setCategory
+});
+
+bot.commands.set(cmdChar + "rounds", {
+    execute: setRounds
 });
 
 // Welcome message (if applicable)
@@ -423,7 +468,7 @@ bot.on('message', (msg) => {
         console.info(`Called command: ${command}`);
 
         if (!bot.commands.has(command)) {
-            msg.reply(`${command} is an invalid command. Send ${cmdChar}help for valid commands.`);
+            msg.reply(`\`${command}\` is an invalid command. Send \`${cmdChar}help\` for valid commands.`);
             return;
         }
         else {
