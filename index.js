@@ -254,7 +254,7 @@ let catEmbed = new Discord.MessageEmbed()
 
 
 // First row is single "All" button
-catEmbed.addField('\u200B', '\u200B', false); //empty line
+// catEmbed.addField('\u200B', '\u200B', false); //empty line
 catEmbed.addField(categories[0], "📖`" + categories[0].toLowerCase().replace(regex.non_alphanum, "_") + "`", false);
 
 for (i = 1; i < categories.length; i++) {
