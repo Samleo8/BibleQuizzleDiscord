@@ -9,4 +9,5 @@ module.exports = {
     hugs: require('./hugs'),
     sads: require('./sads'),
     quack: require('./quack'),
+    help: require('./help'),
 };
