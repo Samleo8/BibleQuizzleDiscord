@@ -40,15 +40,15 @@ const {
 
 let _asBoldStr = (str) => {
     return "**" + str + "**";
-}
+};
 
 let _asItalicStr = (str) => {
     return "*" + str + "*";
-}
+};
 
 let _asCodeStr = (str) => {
     return "`" + str + "`";
-}
+};
 
 let _asCmdStr = (str) => {
     return _asCodeStr(cmdChar + str);
@@ -316,7 +316,7 @@ let setCategory = (msg, args) => {
 
     msg.reply(`Category *${heardString}* chosen!`);
     chooseRounds(msg);
-}
+};
 
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
@@ -324,16 +324,20 @@ const roundsEmbed = new Discord.MessageEmbed()
     .addField("Suggested", "🕐 10\u200B🕑 20\u200B🕔 50\u200B🕙 100", false)
     .addField("Note", "Number of rounds should be an integer >= 1", false);
 
+let _sendRoundsEmbed = (msg, str) => {
+    msg.reply(str, roundsEmbed).react("🕐").react("🕑").react("🕔").react("🕙");
+};
+
 let chooseRounds = (msg, _) => {
     Game.status = 'choosing_rounds';
 
-    return msg.reply("Please choose the number of rounds/questions:", roundsEmbed);
+    _sendRoundsEmbed(msg, "Please choose the number of rounds/questions:");
 };
 
 let setRounds = (msg, args) => {
     if (Game.status != "choosing_rounds") {
         if (Game.status == "choosing_category") {
-            ctx.reply("Please choose a category first.", categoryEmbed);
+            ctx.reply("Please choose a category first.", catEmbed);
         }
         else {
             ctx.reply(
@@ -345,13 +349,13 @@ let setRounds = (msg, args) => {
 
     let numRounds = args[0];
     if (isNaN(numRounds)) {
-        msg.reply("Invalid: Specify a positive integer", roundsEmbed);
+        _sendRoundsEmbed(msg, "Invalid: Specify a positive integer");
         return;
     }
 
     numRounds = parseInt(numRounds);
     if (numRounds <= 0) {
-        msg.reply("Invalid: Number of rounds should be >= 1", roundsEmbed);
+        _sendRoundsEmbed(msg, "Invalid: Number of rounds should be >= 1");
         return;
     }
 
