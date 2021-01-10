@@ -38,8 +38,11 @@ const {
     regex
 } = require('./constants.js');
 
+let _asCodeStr = (str) => {
+    return "`" + str + "`";
+}
 let _asCmdStr = (str) => {
-    return "`" + cmdChar + str + "`";
+    return _asCodeStr(cmdChar + str);
 };
 
 let i, j;
