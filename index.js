@@ -344,8 +344,11 @@ let _sendRoundsEmbed = (msg, str) => {
                     await sentEmbed.awaitReactions(r => roundsEmojis.includes(r.emoji.name), {
                             max: 1
                         })
-                        .then((rct) => {
-                            console.log("User clicked on emoji:", rct._emoji.name);
+                        .then((collected) => {
+                            const clickedEmoji = collected.first()
+                                .emoji.name;
+                            console.log("User clicked on emoji:", clickedEmoji);
+                            setRounds(sentEmbed, [roundsEmojis.findIndex(clickedEmoji)]);
                         });
                 }
                 catch (err) {
