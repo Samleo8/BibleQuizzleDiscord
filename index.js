@@ -139,6 +139,8 @@ startGame = (msg, args) => {
 
 // Next Question handler
 nextQuestion = (msg) => {
+    console.log("Game started");
+
     // Invalid state
     if (Game.status.indexOf("active") == -1 || Game.category == null || !questions.hasOwnProperty(Game.category))
         return;
@@ -250,7 +252,7 @@ let initGame = (msg, _) => {
 // Make Category Embed from `categories`
 let catEmbed = new Discord.MessageEmbed()
     .setTitle("Categories")
-    .setDescription("Choose a valid category with `!category <valid category>`");
+    .setDescription("Choose a valid category with `!category <valid category name>`");
 
 // First row is single "All" button
 // catEmbed.addField('\u200B', '\u200B', false); //empty line
@@ -303,7 +305,7 @@ let setCategory = (msg, args) => {
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription(`Choose number of rounds/questions with \`${cmdChar}rounds <number of rounds>\``)
-    .addField("Suggested", "🕐 10    🕑 20    🕔 50    🕙 100", false)
+    .addField("Suggested", "🕐 10\u200B🕑 20\u200B🕔 50\u200B🕙 100", false)
     .addField("Note", "Number of rounds should be an integer >= 1", false);
 
 let chooseRounds = (msg, _) => {
