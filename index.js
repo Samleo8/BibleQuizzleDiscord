@@ -318,7 +318,7 @@ let setCategory = (msg, args) => {
     chooseRounds(msg);
 };
 
-const roundsEmojis = ["🕑", "🕑", "🕔", "🕙"];
+const roundsEmojis = ["🕐", "🕑", "🕔", "🕙"];
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription(
@@ -345,7 +345,7 @@ let _sendRoundsEmbed = (msg, str) => {
                             max: 1
                         })
                         .then((rct) => {
-                            console.log("User clicked on emoji:", rct.emoji.name);
+                            console.log("User clicked on emoji:", rct._emoji.name);
                         });
                 }
                 catch (err) {
