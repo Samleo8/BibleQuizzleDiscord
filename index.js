@@ -38,9 +38,18 @@ const {
     regex
 } = require('./constants.js');
 
+let _asBoldStr = (str) => {
+    return "**" + str + "**";
+}
+
+let _asItalicStr = (str) => {
+    return "*" + str + "*";
+}
+
 let _asCodeStr = (str) => {
     return "`" + str + "`";
 }
+
 let _asCmdStr = (str) => {
     return _asCodeStr(cmdChar + str);
 };
