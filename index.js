@@ -318,30 +318,41 @@ let setCategory = (msg, args) => {
     chooseRounds(msg);
 };
 
+const roundsEmojis = ["🕑", "🕑", "🕔", "🕙"];
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
-    .setDescription(`Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`)
-    .addField("🕐 10", "10 Rounds", false)
-    .addField("🕑 20", "20 Rounds", false)
-    .addField("🕔 50", "50 Rounds", false)
-    .addField("🕙 100", "100 Rounds", false)
+    .setDescription(
+        `Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
+    )
+    .addField(`${roundsEmojis[0]} 10`, "10 Rounds", true)
+    .addField(`${roundsEmojis[1]} 20`, "20 Rounds", true)
+    .addField(`${roundsEmojis[2]} 50`, "50 Rounds", true)
+    .addField(`${roundsEmojis[3]} 100`, "100 Rounds", true)
     .addField("Note", "Number of rounds should be an integer >= 1", false);
 
 let _sendRoundsEmbed = (msg, str) => {
-    msg.reply(str, roundsEmbed).then(
-        async (sentEmbed) => {
-            // Enforce order
-            try {
-                await sentEmbed.react("🕐");
-                await sentEmbed.react("🕑");
-                await sentEmbed.react("🕔");
-                await sentEmbed.react("🕙");
+    msg.reply(str, roundsEmbed)
+        .then(
+            async (sentEmbed) => {
+                // Enforce order
+                try {
+                    await sentEmbed.react(roundsEmojis[0]);
+                    await sentEmbed.react(roundsEmojis[1]);
+                    await sentEmbed.react(roundsEmojis[2]);
+                    await sentEmbed.react(roundsEmojis[3]);
+                                    
+                    await sentEmbed.awaitReactions(r => roundsEmojis.includes(r.emoji.name), {
+                            max: 1
+                        })
+                        .then((rct) => {
+                            console.log("User clicked on emoji:", rct.emoji.name);
+                        });
+                }
+                catch (err) {
+                    console.error("One of the reactions failed: ", err);
+                }
             }
-            catch (err) {
-                console.error("One of the reactions failed: ", err);
-            }
-        }
-    );
+        );
 };
 
 let chooseRounds = (msg, _) => {
@@ -358,7 +369,7 @@ let setRounds = (msg, args) => {
         else {
             ctx.reply(
                 `Game is currently in progress. To stop the game and start a new one, first send ${_asCmdStr("stop")}`
-                );
+            );
         }
         return;
     }
