@@ -350,7 +350,7 @@ let _sendRoundsEmbed = (msg, str) => {
                             const clickedEmoji = collected.first()
                                 .emoji.name;
                             console.log("User clicked on emoji:", clickedEmoji);
-                            setRounds(sentEmbed, [roundsEmojis.findIndex(clickedEmoji)]);
+                            setRounds(sentEmbed, [roundsEmojis.indexOf(clickedEmoji)]);
                         });
                 }
                 catch (err) {
