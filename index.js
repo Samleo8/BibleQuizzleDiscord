@@ -150,7 +150,8 @@ startGame = (msg, args) => {
     Game.rounds.current = 0;
     Game.idle.reset();
 
-    msg.reply(`Starting game with category ${_asBoldStr(Game.category)} and ${_asBoldStr(Game.rounds.total)} rounds!`);
+    msg.reply(
+        `Starting game with category ${_asBoldStr(Game.category)} and ${_asBoldStr(Game.rounds.total)} rounds!`);
 
     nextQuestion(msg);
 };
@@ -321,6 +322,8 @@ let setCategory = (msg, args) => {
 };
 
 const roundsEmojis = ["🕐", "🕑", "🕔", "🕙"];
+const roundsNumbers = [10, 20, 50, 100];
+
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription(
@@ -342,7 +345,7 @@ let _sendRoundsEmbed = (msg, str) => {
                     await sentEmbed.react(roundsEmojis[1]);
                     await sentEmbed.react(roundsEmojis[2]);
                     await sentEmbed.react(roundsEmojis[3]);
-                                    
+
                     await sentEmbed.awaitReactions(r => roundsEmojis.includes(r.emoji.name), {
                             max: 1
                         })
@@ -350,7 +353,9 @@ let _sendRoundsEmbed = (msg, str) => {
                             const clickedEmoji = collected.first()
                                 .emoji.name;
                             console.log("User clicked on emoji:", clickedEmoji);
-                            setRounds(sentEmbed, [roundsEmojis.indexOf(clickedEmoji)]);
+                            setRounds(sentEmbed, [
+                                roundsNumbers[roundsEmojis.indexOf(clickedEmoji)]
+                            ]);
                         });
                 }
                 catch (err) {
