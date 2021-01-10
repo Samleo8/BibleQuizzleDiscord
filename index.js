@@ -325,7 +325,20 @@ const roundsEmbed = new Discord.MessageEmbed()
     .addField("Note", "Number of rounds should be an integer >= 1", false);
 
 let _sendRoundsEmbed = (msg, str) => {
-    msg.reply(str, roundsEmbed).react("🕐").react("🕑").react("🕔").react("🕙");
+    msg.reply(str, roundsEmbed).then(
+        async (sentEmbed) => {
+            // Enforce order
+            try {
+                await sentEmbed.react("🕐");
+                await sentEmbed.react("🕑");
+                await sentEmbed.react("🕔");
+                await sentEmbed.react("🕙");
+            }
+            catch (err) {
+                console.error("One of the reactions failed: ", err);
+            }
+        }
+    );
 };
 
 let chooseRounds = (msg, _) => {
