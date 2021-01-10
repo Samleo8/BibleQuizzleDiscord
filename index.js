@@ -320,8 +320,11 @@ let setCategory = (msg, args) => {
 
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
-    .setDescription(`Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}`)
-    .addField("Suggested", "🕐 10\u200B🕑 20\u200B🕔 50\u200B🕙 100", false)
+    .setDescription(`Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`)
+    .addField("🕐 10", "10 Rounds", false)
+    .addField("🕑 20", "20 Rounds", false)
+    .addField("🕔 50", "50 Rounds", false)
+    .addField("🕙 100", "100 Rounds", false)
     .addField("Note", "Number of rounds should be an integer >= 1", false);
 
 let _sendRoundsEmbed = (msg, str) => {
