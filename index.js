@@ -38,6 +38,10 @@ const {
     regex
 } = require('./constants.js');
 
+let _asCmdStr = (str) => {
+    return "`" + cmdChar + str + "`";
+};
+
 let i, j;
 
 /*==================WELCOME MESSAGE===================*/
@@ -236,7 +240,7 @@ let initGame = (msg, _) => {
     switch (Game.status) {
         case "active":
         case "active_wait":
-            return msg.reply(`A game is already in progress. To stop the game, type ${cmdChar}stop`);
+            return msg.reply(`A game is already in progress. To stop the game, type ${_asCmdStr("stop")}`);
         case "choosing_cat":
         case "choosing_category":
             resetGame();
@@ -304,7 +308,7 @@ let setCategory = (msg, args) => {
 
 const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
-    .setDescription(`Choose number of rounds/questions with \`${cmdChar}rounds <number of rounds>\``)
+    .setDescription(`Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}`)
     .addField("Suggested", "🕐 10\u200B🕑 20\u200B🕔 50\u200B🕙 100", false)
     .addField("Note", "Number of rounds should be an integer >= 1", false);
 
@@ -316,11 +320,13 @@ let chooseRounds = (msg, _) => {
 
 let setRounds = (msg, args) => {
     if (Game.status != "choosing_rounds") {
-        if (Game.status == "choosing_category"){
+        if (Game.status == "choosing_category") {
             ctx.reply("Please choose a category first.", categoryEmbed);
         }
         else {
-            ctx.reply(`Game is currently in progress. To stop the game and start a new one, first send \`${cmdChar}stop\``);
+            ctx.reply(
+                `Game is currently in progress. To stop the game and start a new one, first send ${_asCmdStr("stop")}`
+                );
         }
         return;
     }
@@ -497,7 +503,7 @@ bot.on('message', (msg) => {
         console.info(`Called command: ${command}`);
 
         if (!bot.commands.has(command)) {
-            msg.reply(`\`${command}\` is an invalid command. Send \`${cmdChar}help\` for valid commands.`);
+            msg.reply(`\`${command}\` is an invalid command. Send ${_asCmdStr("help")} for valid commands.`);
             return;
         }
         else {
