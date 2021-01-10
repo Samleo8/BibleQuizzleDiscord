@@ -150,6 +150,8 @@ startGame = (msg, args) => {
     Game.rounds.current = 0;
     Game.idle.reset();
 
+    msg.reply(`Starting game with category ${_asBoldStr(Game.category)} and ${_asBoldStr(Game.rounds.total)} rounds!`);
+
     nextQuestion(msg);
 };
 
