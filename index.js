@@ -31,6 +31,8 @@ bot.on('ready', () => {
 });
 
 // Get constants from file
+const Library = require('./index.lib.js');
+
 const {
     cmdChar,
     welcomeMessage,
@@ -191,7 +193,7 @@ nextQuestion = (msg) => {
         }
     }
 
-    let id_ind = getRandomInt(0, Game.question.id_list.length - 1);
+    let id_ind = Library.getRandomInt(0, Game.question.id_list.length - 1);
     Game.question.id = Game.question.id_list[id_ind];
     Game.question.id_list.splice(id_ind, 1);
 
@@ -473,7 +475,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 };
 
 _showAnswer = (msg) => {
-    let answerers = removeDuplicates(Game.question.answerer);
+    let answerers = Library.removeDuplicates(Game.question.answerer);
 
     if (Game.question.answerer.length == 0) {
         msg.reply(
