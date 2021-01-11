@@ -24,6 +24,8 @@ regex.non_alphanum = new RegExp("[^A-Z0-9]", "gi");
 
 // const ADMIN_ID = 413007985;
 
+const maxTime = 60000; // milliseconds = 1 min
+
 module.exports = {
     name: "constants"
 };
@@ -33,3 +35,4 @@ module.exports.welcomeMessage = welcomeMessage;
 module.exports.helpMessage = helpMessage;
 module.exports.regex = regex;
 module.exports.categories = categories;
+module.exports.maxTime = maxTime;

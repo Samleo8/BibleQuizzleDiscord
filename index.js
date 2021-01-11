@@ -35,7 +35,8 @@ const {
     cmdChar,
     welcomeMessage,
     categories,
-    regex
+    regex,
+    maxTime
 } = require('./constants.js');
 
 let _asBoldStr = (str) => {
@@ -346,16 +347,21 @@ let _sendRoundsEmbed = (msg, str) => {
                     await sentEmbed.react(roundsEmojis[2]);
                     await sentEmbed.react(roundsEmojis[3]);
 
-                    await sentEmbed.awaitReactions(r => roundsEmojis.includes(r.emoji.name), {
-                            max: 1
-                        })
+                    await sentEmbed.awaitReactions(
+                            (reactions, user) => roundsEmojis.includes(reactions.emoji.name), {
+                                max: 1,
+                                time: maxTime
+                            })
                         .then((collected) => {
                             const clickedEmoji = collected.first()
                                 .emoji.name;
-                            console.log("User clicked on emoji:", clickedEmoji);
+                            console.log("User ", user.name, " clicked on emoji:", clickedEmoji);
                             setRounds(sentEmbed, [
                                 roundsNumbers[roundsEmojis.indexOf(clickedEmoji)]
                             ]);
+                        })
+                        .catch(() => {
+                            console.log(`No response after ${maxTime/1000}s`);
                         });
                 }
                 catch (err) {
