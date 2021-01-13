@@ -466,13 +466,16 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
     let questionEmbed = new Discord.MessageEmbed()
         .setAuthor("Bible Quizzle", logoURL, githubURL)
         .setTitle(`Question ${Game.rounds.current} of ${Game.rounds.total}`)
-        .setDescription(
-            `[${Format.asItalicStr(categoriesText)}] ${questionText}`
-        );
 
+    questionEmbed.addField(
+        questionText,
+        `[${Format.asItalicStr(categoriesText)}]`
+    );
+
+    // Show hint text as code
     if (hintText != null) {
-        hintText = hintText.split("").join(" ");
-        questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, Format.asCodeStr(hintText), false);
+        questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, Format.asCodeStr(hintText),
+            false);
     }
 
     // Help text
@@ -631,7 +634,7 @@ nextHint = (msg, args) => {
 
         Game.hints.unrevealedIndex.splice(r, 1); // remove revealed character from `unrevealedIndex` array
     }
-    hint = hint.join("")
+    hint = hint.join(" ")
         .toString();
 
     _showQuestion(msg, questionText, categoriesText, hint);
