@@ -468,7 +468,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
         `Get a hint (lower score) by sending ${Format.asCmdStr("hint")} or clicking the ${hintEmoji} emoji below.`,
         true);
     questionEmbed.addField(`${nextEmoji} Want to skip?`,
-        `Vote to skip by sending ${Format.asCmdStr("skip")} or clicking the ${skipEmoji} emoji below.\nIf ${Game.nexts.total} or more people vote to skip, this question will be skipped completely.`,
+        `Vote to skip by sending ${Format.asCmdStr("skip")} or clicking the ${nextEmoji} emoji below.\nIf ${Game.nexts.total} or more people vote to skip, this question will be skipped completely.`,
         true);
 
     // Send and react with emojis
