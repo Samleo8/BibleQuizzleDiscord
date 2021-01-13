@@ -280,7 +280,7 @@ for (i = 1; i < categories.length; i++) {
 let chooseCategory = (msg, _) => {
     Game.status = 'choosing_category';
 
-    msg.reply("Please choose a category:", catEmbed);
+    msg.reply(`Please choose a category or start a ${Format.asCmdStr("quick")} game:`, catEmbed);
 };
 
 let setCategory = (msg, args) => {
@@ -459,7 +459,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
             `[${Format.asItalicStr(categoriesText)}] ${questionText}`
         );
 
-    if (hintText == null) {
+    if (hintText != null) {
         questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, hintText, false);
     }
 
@@ -607,7 +607,7 @@ nextHint = (ctx) => {
         ind = 0;
 
     for (i = 0; i < Game.hints.charsToReveal[hints_given]; i++) {
-        r = getRandomInt(0, Game.hints.unrevealedIndex.length -
+        r = Library.getRandomInt(0, Game.hints.unrevealedIndex.length -
             1); // get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
 
         if (Game.hints.unrevealedIndex.length <= 0) break;
