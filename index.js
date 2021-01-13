@@ -471,7 +471,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
         );
 
     if (hintText != null) {
-        hintText.split("").join(" ");
+        hintText = hintText.split("").join(" ");
         questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, Format.asCodeStr(hintText), false);
     }
 
