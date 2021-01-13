@@ -9,6 +9,12 @@ module.exports = {
     asCodeStr: (str) => {
         return "`" + str + "`";
     },
+    asUnderlinedStr: (str) => {
+        return "__" + str + "__";
+    },
+    asStrikeThroughStr: (str) => {
+        return "~~" + str + "~~";
+    },
     asCmdStr: (str) => {
         return _asCodeStr(cmdChar + str);
     }
