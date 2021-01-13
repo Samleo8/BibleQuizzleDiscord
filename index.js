@@ -548,10 +548,8 @@ let trySendWelcome = (channel) => {
         if (tryChannels.includes(channelName)) {
             const permissions = channel.permissionsFor(bot.user);
             if (permissions.has("VIEW_CHANNEL") && permissions.has("SEND_MESSAGES")) {
-                if (channel.name in tryChannels) {
-                    channel.send(welcomeMessage);
-                    return true;
-                }
+                channel.send(welcomeMessage);
+                return true;
             }
         }
     }
