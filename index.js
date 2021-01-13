@@ -30,9 +30,11 @@ bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
 });
 
-// Get constants from file
+// Load libraries and other files
 const Library = require('./index.lib.js');
+const Format = require('./format.js');
 
+// Get constants from file
 const {
     cmdChar,
     welcomeMessage,
@@ -40,22 +42,6 @@ const {
     regex,
     maxTime
 } = require('./constants.js');
-
-let _asBoldStr = (str) => {
-    return "**" + str + "**";
-};
-
-let _asItalicStr = (str) => {
-    return "*" + str + "*";
-};
-
-let _asCodeStr = (str) => {
-    return "`" + str + "`";
-};
-
-let _asCmdStr = (str) => {
-    return _asCodeStr(cmdChar + str);
-};
 
 let i, j;
 
@@ -154,7 +140,7 @@ startGame = (msg, args) => {
     Game.idle.reset();
 
     msg.reply(
-        `Starting game with category ${_asBoldStr(Game.category)} and ${_asBoldStr(Game.rounds.total)} rounds!`);
+        `Starting game with category ${Format.asBoldStr(Game.category)} and ${Format.asBoldStr(Game.rounds.total)} rounds!`);
 
     nextQuestion(msg);
 };
@@ -258,7 +244,7 @@ let initGame = (msg, _) => {
     switch (Game.status) {
         case "active":
         case "active_wait":
-            return msg.reply(`A game is already in progress. To stop the game, type ${_asCmdStr("stop")}`);
+            return msg.reply(`A game is already in progress. To stop the game, type ${Format.asCmdStr("stop")}`);
         case "choosing_cat":
         case "choosing_category":
             resetGame();
@@ -330,7 +316,7 @@ const roundsNumbers = [10, 20, 50, 100];
 let roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription(
-        `Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
+        `Choose number of rounds/questions with ${Format.asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
     );
 
 for (i in roundsNumbers) {
@@ -387,7 +373,7 @@ let setRounds = (msg, args) => {
         }
         else {
             ctx.reply(
-                `Game is currently in progress. To stop the game and start a new one, first send ${_asCmdStr("stop")}`
+                `Game is currently in progress. To stop the game and start a new one, first send ${Format.asCmdStr("stop")}`
             );
         }
         return;
@@ -461,7 +447,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
         .setAuthor("Bible Quizzle", "", githubURL)
         .setTitle(`Question ${Game.rounds.current} of ${Game.rounds.total}`)
         .setDescription(
-            `[${_asItalicStr(categoriesText)}] ${questionText}`
+            `[${Format.asItalicStr(categoriesText)}] ${questionText}`
         );
 
     if (hintText == null) {
@@ -582,7 +568,7 @@ bot.on('message', (msg) => {
         console.info(`Called command: ${command}`);
 
         if (!bot.commands.has(command)) {
-            msg.reply(`\`${command}\` is an invalid command. Send ${_asCmdStr("help")} for valid commands.`);
+            msg.reply(`\`${command}\` is an invalid command. Send ${Format.asCmdStr("help")} for valid commands.`);
             return;
         }
         else {
