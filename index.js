@@ -447,10 +447,11 @@ _getName = (msg) => {
     return msg.author.username;
 };
 
-const hintEmoji;
-const 
+const hintEmoji = "❔";
+const nextEmoji = "⏭️";
 
 _showQuestion = (msg, questionText, categoriesText, hintText) => {
+    // Build the question embed
     let questionEmbed = new Discord.MessageEmbed()
         .setAuthor("Bible Quizzle", logoURL, githubURL)
         .setTitle(`Question ${Game.rounds.current} of ${Game.rounds.total}`)
@@ -459,10 +460,50 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
         );
 
     if (hintText == null) {
-        questionEmbed.addField("Hint", hintText, false);
+        questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, hintText, false);
     }
 
-    questionEmbed.addField(" Need a hint?");
+    // Help text
+    questionEmbed.addField(`${hintEmoji} Need a hint?`,
+        `Get a hint (lower score) by sending ${Format.asCmdStr("hint")} or clicking the ${hintEmoji} emoji below.`,
+        true);
+    questionEmbed.addField(`${nextEmoji} Want to skip?`,
+        `Vote to skip by sending ${Format.asCmdStr("skip")} or clicking the ${skipEmoji} emoji below.\nIf ${Game.nexts.total} or more people vote to skip, this question will be skipped completely.`,
+        true);
+
+    // Send and react with emojis
+    msg.reply(questionEmbed)
+        .then(
+            async (sentEmbed) => {
+                // Enforce order
+                try {
+                    await sentEmbed.react(hintEmoji);
+                    await sentEmbed.react(nextEmoji);
+
+                    await sentEmbed.awaitReactions(
+                            (reactions) => [hintEmoji, nextEmoji].includes(reactions.emoji.name), {
+                                max: 1
+                            })
+                        .then((collected) => {
+                            const ctx = collected.first();
+                            const clickedEmoji = ctx.emoji.name;
+
+                            if (clickedEmoji == hintEmoji) {
+                                nextHint(msg);
+                            }
+                            else if (clickedEmoji == nextEmoji) {
+                                nextCommand(msg);
+                            }
+                        })
+                        .catch((err) => {
+                            console.info(`${err}: No response after ${maxTime/1000}s`);
+                        });
+                }
+                catch (err) {
+                    console.error("One of the reactions failed: ", err);
+                }
+            }
+        );
 };
 
 // TODO: Embedded thing for this
@@ -520,6 +561,86 @@ _showAnswer = (msg) => {
         () => nextQuestion(msg),
         Game.interval * 1000 * 0.5
     );
+};
+
+/*==================HINTS AND NEXTS===================*/
+// Hint Handler
+nextHint = (ctx) => {
+    if (Game.status != "active")
+        return; // if it's `active_wait` also return because it means that there's no question at the point in time
+
+    /*Total of 4 hints:
+        - -1%    |    Only the question     |    100pts
+        - 0%    |    No. of characters     |    -5pts
+        - 20%    |    20% chars shown     |    -10pts
+        - 50%    |    50% chars shown     |    -20pts
+        - 80%    |     80% chars shown     |    -30pts
+    */
+    Game.hints.current++;
+    Game.idle.reset();
+
+    if (Game.hints.current >= Game.hints.total) {
+        _showAnswer(ctx);
+        return;
+    }
+
+    // Display Question
+    let questionText = _getQuestion();
+    let categoriesText = _getCategories();
+    let answerText = _getAnswer();
+
+    // Hint generation
+    let hint = Game.hints.text.split("");
+    let hints_given = Game.hints.current;
+    let r = 0,
+        ind = 0;
+
+    for (i = 0; i < Game.hints.charsToReveal[hints_given]; i++) {
+        r = getRandomInt(0, Game.hints.unrevealedIndex.length -
+            1); // get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
+
+        if (Game.hints.unrevealedIndex.length <= 0) break;
+
+        // get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
+        ind = Game.hints.unrevealedIndex[r];
+
+        hint[ind] = answerText[ind]; // reveal character at index `ind`
+
+        Game.hints.unrevealedIndex.splice(r, 1); // remove revealed character from `unrevealedIndex` array
+    }
+    hint = hint.join("")
+        .toString();
+
+    _showQuestion(ctx, questionText, categoriesText, hint);
+
+    Game.hints.text = hint; // save back into `Game` object
+
+    // Create new handler every `interval` seconds
+    clearTimeout(Game.timer);
+    Game.timer = setTimeout(
+        () => nextHint(ctx),
+        Game.interval * 1000
+    );
+};
+
+// Next Command and Action (from inline buttons and keyboard)
+nextCommand = (ctx) => {
+    if (Game.status != "active")
+        return; // if it's `active_wait` also return because it means that there's no question at the point in time
+
+    Game.idle.reset();
+
+    let id = (ctx.callbackQuery == undefined || ctx.callbackQuery.from == undefined || ctx.callbackQuery.from.id ==
+            undefined) ?
+        ctx.message.from.id : ctx.callbackQuery.from.id;
+
+    Game.nexts.current[id] = 1;
+
+    if (Object.keys(Game.nexts.current)
+        .length >= Game.nexts.total || ctx.chat.type == "private")
+        return _showAnswer(ctx);
+
+    return nextHint(ctx);
 };
 
 /*==================MESSAGE HANDLING===================*/
