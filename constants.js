@@ -6,6 +6,8 @@ module.exports = {
     name: "constants"
 };
 
+const welcomeChannels = ['quizzle', 'biblequizzle', 'game', 'games'];
+
 const welcomeMessage =
     `Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type ${Format.asCmdStr("start")} in the bot\'s private chat, or in the group. For more information and a list of all commands, type ${Format.asCmdStr("help")}`;
 
@@ -24,15 +26,17 @@ const helpMessage =
 const categories = ["All", "Old Testament", "New Testament", "Gospels", "Prophets", "Miracles", "Exodus",
     "Kings/Judges"];
 
-const regex = {};
-regex.alphanum = new RegExp("[A-Z0-9]", "gi");
-regex.non_alphanum = new RegExp("[^A-Z0-9]", "gi");
+const regex = {
+    alphanum: new RegExp("[A-Z0-9]", "gi"),
+    non_alphanum: new RegExp("[^A-Z0-9]", "gi")
+};
 
 // const ADMIN_ID = 413007985;
 
 const maxTime = 5 * 60000; // NOTE: in milliseconds
 
 module.exports.cmdChar = cmdChar;
+module.exports.welcomeChannels = welcomeChannels;
 module.exports.welcomeMessage = welcomeMessage;
 module.exports.helpMessage = helpMessage;
 module.exports.regex = regex;

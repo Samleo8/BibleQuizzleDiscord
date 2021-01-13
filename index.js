@@ -38,6 +38,7 @@ const Format = require('./format.js');
 const {
     cmdChar,
     welcomeMessage,
+    welcomeChannels,
     categories,
     regex,
     maxTime
@@ -527,11 +528,9 @@ bot.commands.set(cmdChar + "rounds", {
 
 // Welcome message (if applicable)
 let trySendWelcome = (channel) => {
-    const tryChannels = ['quizzle', 'biblequizzle', 'game', 'games'];
-
     if (channel.type === "text") {
         const channelName = channel.name.replace(regex.non_alphanum, "");
-        if (tryChannels.includes(channelName)) {
+        if (welcomeChannels.includes(channelName)) {
             const permissions = channel.permissionsFor(bot.user);
             if (permissions.has("VIEW_CHANNEL") && permissions.has("SEND_MESSAGES")) {
                 channel.send(welcomeMessage);
