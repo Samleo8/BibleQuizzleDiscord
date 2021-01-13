@@ -164,7 +164,7 @@ startQuickGame = (msg, args) => {
 }
 
 // Next Question handler
-nextQuestion = (msg) => {
+nextQuestion = (msg, args) => {
     // Invalid state
     if (Game.status.indexOf("active") == -1 || Game.category == null || !questions.hasOwnProperty(Game.category))
         return;
@@ -175,14 +175,14 @@ nextQuestion = (msg) => {
     // Check if any user input, if not stop
     Game.rounds.current++;
     if (Game.rounds.current > Game.rounds.total) {
-        stopGame(msg);
+        stopGame(msg, args);
         return;
     }
 
     Game.idle.questions++;
     if (Game.idle.questions > Game.idle.threshold) {
         // log(Game.idle.questions + " " + Game.idle.threshold);
-        stopGame(msg);
+        stopGame(msg, args);
     }
 
     // Handling of question selection
@@ -500,10 +500,10 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                             const clickedEmoji = msg.emoji.name;
 
                             if (clickedEmoji == hintEmoji) {
-                                nextHint(msg);
+                                nextHint(msg, _);
                             }
                             else if (clickedEmoji == nextEmoji) {
-                                nextCommand(msg);
+                                nextCommand(msg, _);
                             }
                         })
                         .catch((err) => {
@@ -587,7 +587,7 @@ _showAnswer = (msg) => {
 
 /*==================HINTS AND NEXTS===================*/
 // Hint Handler
-nextHint = (msg) => {
+nextHint = (msg, args) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
@@ -640,13 +640,13 @@ nextHint = (msg) => {
     // Create new handler every `interval` seconds
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
-        () => nextHint(msg),
+        () => nextHint(msg, args),
         Game.interval * 1000
     );
 };
 
 // Next Command and Action (from inline buttons and keyboard)
-nextCommand = (msg) => {
+nextCommand = (msg, args) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
@@ -663,7 +663,7 @@ nextCommand = (msg) => {
         .length >= Game.nexts.total || msg.chat.type == "private")
         return _showAnswer(msg);
 
-    return nextHint(msg);
+    return nextHint(msg, args);
 };
 
 /*================STOPPING AND SCORES===================*/
@@ -745,12 +745,24 @@ bot.commands.set(cmdChar + "quick", {
     execute: startQuickGame
 });
 
+bot.commands.set(cmdChar + "hint", {
+    execute: nextHint
+});
+
+bot.commands.set(cmdChar + "next", {
+    execute: nextCommand
+});
+
 bot.commands.set(cmdChar + "category", {
     execute: setCategory
 });
 
 bot.commands.set(cmdChar + "rounds", {
     execute: setRounds
+});
+
+bot.commands.set(cmdChar + "stop", {
+    execute: stopGame
 });
 
 // Welcome message (if applicable)
