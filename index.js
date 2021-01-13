@@ -263,7 +263,7 @@ let initGame = (msg, _) => {
 };
 
 // Make Category Embed from `categories`
-let catEmbed = new Discord.MessageEmbed()
+const catEmbed = new Discord.MessageEmbed()
     .setTitle("Categories")
     .setDescription("Choose a valid category with `!category <valid category name>`");
 
@@ -318,7 +318,7 @@ let setCategory = (msg, args) => {
 const roundsEmojis = ["🕐", "🕑", "🕔", "🕙"];
 const roundsNumbers = [10, 20, 50, 100];
 
-let roundsEmbed = new Discord.MessageEmbed()
+const roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription(
         `Choose number of rounds/questions with ${Format.asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
@@ -508,9 +508,9 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 
 // TODO: Embedded thing for this
 _showAnswer = (msg) => {
-    let answerers = Library.removeDuplicates(Game.question.answerer);
+    const answerers = Library.removeDuplicates(Game.question.answerer);
 
-    let answerEmbed = new Discord.MessageEmbed()
+    const answerEmbed = new Discord.MessageEmbed()
         .setAuthor("Bible Quizzle", logoURL, githubURL)
         .setTitle(`Results: Round ${Game.rounds.current} of ${Game.rounds.total}`)
 
@@ -526,6 +526,7 @@ _showAnswer = (msg) => {
         let scoreboardText = "";
         let score = Game.hints.points[Game.hints.current];
         for (i = 0; i < answerers.length; i++) {
+            // TODO: may need to update API
             scoreboardText += `${Format.asBoldStr(answerers[i].name)} +${score}\n`;
 
             // Update leaderboard
