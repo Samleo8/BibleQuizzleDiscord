@@ -1,5 +1,4 @@
 const Format = require('./format.js');
-const suggest = require('./commands/suggest');
 
 module.exports = {
     name: "constants"
@@ -43,6 +42,10 @@ const suggestURL = "https://forms.gle/aqZ3MK8QrBGzv9PEA";
 // URL to GitHub repo
 const githubURL = "https://github.com/Samleo8/BibleQuizzleDiscord";
 
+// URL to logo
+// TODO: make one!
+const logoURL = "";
+
 // const ADMIN_ID = 413007985;
 
 // Maximum time before reaction wait timeout
@@ -55,6 +58,7 @@ module.exports.welcomeMessage = welcomeMessage;
 module.exports.helpMessage = helpMessage;
 module.exports.regex = regex;
 module.exports.categories = categories;
+module.exports.logoURL = logoURL;
 module.exports.githubURL = githubURL;
 module.exports.suggestURL = suggestURL;
 module.exports.maxTime = maxTime;

@@ -41,7 +41,10 @@ const {
     welcomeChannels,
     categories,
     regex,
-    maxTime
+    maxTime,
+    githubURL,
+    suggestURL,
+    logoURL
 } = require('./constants.js');
 
 let i, j;
@@ -444,10 +447,12 @@ _getName = (msg) => {
     return msg.author.username;
 };
 
-// TODO: Embedded thing for this
+const hintEmoji;
+const 
+
 _showQuestion = (msg, questionText, categoriesText, hintText) => {
     let questionEmbed = new Discord.MessageEmbed()
-        .setAuthor("Bible Quizzle", "", githubURL)
+        .setAuthor("Bible Quizzle", logoURL, githubURL)
         .setTitle(`Question ${Game.rounds.current} of ${Game.rounds.total}`)
         .setDescription(
             `[${Format.asItalicStr(categoriesText)}] ${questionText}`
@@ -456,8 +461,11 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
     if (hintText == null) {
         questionEmbed.addField("Hint", hintText, false);
     }
+
+    questionEmbed.addField(" Need a hint?");
 };
 
+// TODO: Embedded thing for this
 _showAnswer = (msg) => {
     let answerers = Library.removeDuplicates(Game.question.answerer);
 
