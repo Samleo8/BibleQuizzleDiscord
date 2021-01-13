@@ -550,28 +550,27 @@ _showAnswer = (msg) => {
         );
 
         answerEmbed.addField(
-            `🏅 Scorer(s) 🏅`, 
-            scoreboardText, 
+            `🏅 Scorer(s) 🏅`,
+            scoreboardText,
             false
         );
+    }
+
+    msg.reply(answerEmbed);
+
+    if (Game.rounds.current >= Game.rounds.total) {
+        stopGame(msg);
+        return;
+    }
+
+    Game.status = "active_wait";
+
+    // Question shows after less time?
+    clearTimeout(Game.timer);
+    Game.timer = setTimeout(
+        () => nextQuestion(msg),
+        Game.interval * 1000 * 0.5
     );
-}
-
-msg.reply(answerEmbed);
-
-if (Game.rounds.current >= Game.rounds.total) {
-    stopGame(msg);
-    return;
-}
-
-Game.status = "active_wait";
-
-// Question shows after less time?
-clearTimeout(Game.timer);
-Game.timer = setTimeout(
-    () => nextQuestion(msg),
-    Game.interval * 1000 * 0.5
-);
 };
 
 /*==================HINTS AND NEXTS===================*/
