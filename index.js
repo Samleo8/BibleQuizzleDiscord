@@ -357,15 +357,14 @@ let _sendRoundsEmbed = (msg, str) => {
                             const ctx = collected.first();
                             const clickedEmoji = ctx.emoji.name;
 
-                            console.log(ctx);
-                            console.log("User clicked on emoji:", clickedEmoji);
+                            console.info("User clicked on emoji:", clickedEmoji);
                             setRounds(sentEmbed, [
                                 roundsNumbers[roundsEmojis.indexOf(clickedEmoji)]
                             ]);
                         })
                         .catch((err) => {
                             console.error(err);
-                            console.log(`No response after ${maxTime/1000}s`);
+                            console.info(`No response after ${maxTime/1000}s`);
                         });
                 }
                 catch (err) {
@@ -458,22 +457,16 @@ _getName = (msg) => {
 
 // TODO: Embedded thing for this
 _showQuestion = (msg, questionText, categoriesText, hintText) => {
-    msg.reply(
-        "<b>BIBLE QUIZZLE</b>\n" +
-        "ROUND <b>" + Game.rounds.current + "</b> OF <b>" + Game.rounds.total + "</b>" +
-        " <i>[" + categoriesText + "]</i>" +
-        "\n--------------------------------\n" +
-        questionText + "\n" +
-        ((hintText == null /*|| typeof hintText == "undefined"*/ ) ? "" : ("<i>Hint: </i>" + hintText.split("")
-            .join(" "))),
-        Extra.HTML()
-        .markup((m) =>
-            m.inlineKeyboard([
-				m.callbackButton('Hint', 'hint'),
-				m.callbackButton('Next', 'next')
-			])
-        )
-    );
+    let questionEmbed = new Discord.MessageEmbed()
+        .setAuthor("Bible Quizzle", "", githubURL)
+        .setTitle(`Question ${Game.rounds.current} of ${Game.rounds.total}`)
+        .setDescription(
+            `[${_asItalicStr(categoriesText)}] ${questionText}`
+        );
+
+    if (hintText == null) {
+        questionEmbed.addField();
+    }
 };
 
 _showAnswer = (msg) => {
@@ -547,10 +540,35 @@ bot.commands.set(cmdChar + "rounds", {
 });
 
 // Welcome message (if applicable)
-bot.on('guildCreate', guild => {
-    guild.channels.find('quizzle', 'game', 'games')
-        .send(welcomeMessage);
+let trySendWelcome = (channel) => {
+    const tryChannels = ['quizzle', 'biblequizzle', 'game', 'games'];
+
+    if (channel.type === "text") {
+        const channelName = channel.name.replace(regex.non_alphanum, "");
+        if (tryChannels.includes(channelName)) {
+            const permissions = channel.permissionsFor(bot.user);
+            if (permissions.has("VIEW_CHANNEL") && permissions.has("SEND_MESSAGES")) {
+                if (channel.name in tryChannels) {
+                    channel.send(welcomeMessage);
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+};
+
+bot.on('guildCreate', (guild) => {
+    let found = false;
+    guild.channels.cache.map((channel) => {
+        if (found) return;
+
+        found = trySendWelcome(channel);
+    });
 });
+
+bot.on("channelCreate", trySendWelcome);
 
 // Message and Command handling
 bot.on('message', (msg) => {
