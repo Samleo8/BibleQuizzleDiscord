@@ -327,16 +327,17 @@ let setCategory = (msg, args) => {
 const roundsEmojis = ["🕐", "🕑", "🕔", "🕙"];
 const roundsNumbers = [10, 20, 50, 100];
 
-const roundsEmbed = new Discord.MessageEmbed()
+let roundsEmbed = new Discord.MessageEmbed()
     .setTitle("Rounds")
     .setDescription(
         `Choose number of rounds/questions with ${_asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
-    )
-    .addField(`${roundsEmojis[0]} 10`, "10 Rounds", true)
-    .addField(`${roundsEmojis[1]} 20`, "20 Rounds", true)
-    .addField(`${roundsEmojis[2]} 50`, "50 Rounds", true)
-    .addField(`${roundsEmojis[3]} 100`, "100 Rounds", true)
-    .addField("Note", "Number of rounds should be an integer >= 1", false);
+    );
+
+for (i in roundsNumbers) {
+    roundsEmbed.addField(`${roundsEmojis[i]} ${roundsNumbers[i]}`, `${roundsNumbers[i]} Rounds`, true);
+}
+
+roundsEmbed.addField("Note", "Number of rounds should be an integer >= 1", false);
 
 let _sendRoundsEmbed = (msg, str) => {
     msg.reply(str, roundsEmbed)
