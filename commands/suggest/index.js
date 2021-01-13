@@ -1,13 +1,12 @@
-const Discord = require("discord.js");
+const {
+    suggestURL
+} = require("../../constants.js");
 
 module.exports = {
     name: 'suggest',
     description: "Suggest something!",
     execute (msg, args) {
-        const suggestionFormURL =
-            "https://forms.gle/aqZ3MK8QrBGzv9PEA";
-
-        const suggestionText = "Suggest new questions and answers here: " + suggestionFormURL + " !";
+        const suggestionText = "Suggest new questions and answers here: " + suggestURL + " !";
 
         msg.reply(suggestionText);
         return;
