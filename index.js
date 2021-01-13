@@ -165,8 +165,6 @@ startQuickGame = (msg, args) => {
 
 // Next Question handler
 nextQuestion = (msg) => {
-    console.log("Game started");
-
     // Invalid state
     if (Game.status.indexOf("active") == -1 || Game.category == null || !questions.hasOwnProperty(Game.category))
         return;
@@ -358,8 +356,8 @@ let _sendRoundsEmbed = (msg, str) => {
                                 time: maxTime
                             })
                         .then((collected) => {
-                            const ctx = collected.first();
-                            const clickedEmoji = ctx.emoji.name;
+                            const msg = collected.first();
+                            const clickedEmoji = msg.emoji.name;
 
                             console.info("User clicked on emoji:", clickedEmoji);
                             const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
@@ -388,10 +386,10 @@ let chooseRounds = (msg, _) => {
 let setRounds = (msg, args) => {
     if (Game.status != "choosing_rounds") {
         if (Game.status == "choosing_category") {
-            ctx.reply("Please choose a category first.", catEmbed);
+            msg.reply("Please choose a category first.", catEmbed);
         }
         else {
-            ctx.reply(
+            msg.reply(
                 `Game is currently in progress. To stop the game and start a new one, first send ${Format.asCmdStr("stop")}`
             );
         }
@@ -498,8 +496,8 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                                 max: 1
                             })
                         .then((collected) => {
-                            const ctx = collected.first();
-                            const clickedEmoji = ctx.emoji.name;
+                            const msg = collected.first();
+                            const clickedEmoji = msg.emoji.name;
 
                             if (clickedEmoji == hintEmoji) {
                                 nextHint(msg);
@@ -589,7 +587,7 @@ _showAnswer = (msg) => {
 
 /*==================HINTS AND NEXTS===================*/
 // Hint Handler
-nextHint = (ctx) => {
+nextHint = (msg) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
@@ -604,7 +602,7 @@ nextHint = (ctx) => {
     Game.idle.reset();
 
     if (Game.hints.current >= Game.hints.total) {
-        _showAnswer(ctx);
+        _showAnswer(msg);
         return;
     }
 
@@ -635,36 +633,106 @@ nextHint = (ctx) => {
     hint = hint.join("")
         .toString();
 
-    _showQuestion(ctx, questionText, categoriesText, hint);
+    _showQuestion(msg, questionText, categoriesText, hint);
 
     Game.hints.text = hint; // save back into `Game` object
 
     // Create new handler every `interval` seconds
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
-        () => nextHint(ctx),
+        () => nextHint(msg),
         Game.interval * 1000
     );
 };
 
 // Next Command and Action (from inline buttons and keyboard)
-nextCommand = (ctx) => {
+nextCommand = (msg) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
     Game.idle.reset();
 
-    let id = (ctx.callbackQuery == undefined || ctx.callbackQuery.from == undefined || ctx.callbackQuery.from.id ==
+    // TODO: Get ID properly
+    let id = (msg.callbackQuery == undefined || msg.callbackQuery.from == undefined || msg.callbackQuery.from.id ==
             undefined) ?
-        ctx.message.from.id : ctx.callbackQuery.from.id;
+        msg.message.from.id : msg.callbackQuery.from.id;
 
     Game.nexts.current[id] = 1;
 
     if (Object.keys(Game.nexts.current)
-        .length >= Game.nexts.total || ctx.chat.type == "private")
-        return _showAnswer(ctx);
+        .length >= Game.nexts.total || msg.chat.type == "private")
+        return _showAnswer(msg);
 
-    return nextHint(ctx);
+    return nextHint(msg);
+};
+
+/*================STOPPING AND SCORES===================*/
+// TODO: Displaying of scores
+displayScores = (msg) => {
+    let scoreboardText = "";
+    let scoreboardArr = [];
+
+    // Push all stored info from `Game.leaderboard` into `scoreboardArr`
+    for (i in Game.leaderboard) {
+        if (!Game.leaderboard.hasOwnProperty(i)) continue;
+
+        scoreboardArr.push(Game.leaderboard[i]);
+    }
+
+    const scoreEmbed = new Discord.MessageEmbed()
+        .setAuthor("Bible Quizzle", logoURL, githubURL)
+        .setTitle("Scores")
+        .setDescription("");
+
+    // Handler for when nobody played but the game is stopped
+    if (scoreboardArr.length == 0) {
+        scoreEmbed.addField(
+            "⁉️ Everybody's a winner?!? ⁉️",
+            "(\'cos nobody played... 😞)",
+            false
+        );
+    }
+    else {
+        // Set global rankings and obtain appropriate text
+        scoreboardText += _setGlobalRanking(scoreboardArr, msg);
+
+        // Show the top scorers with a keyboard to start the game
+        scoreEmbed.addField(
+            "🏆 Top Scorers 🏆",
+            scoreboardText,
+            false
+        );
+
+        scoreEmbed.addField(
+            "📋 Feedback",
+            `Suggest more questions and answers [here](${suggestURL})`,
+            true
+        );
+
+        scoreEmbed.addField(
+            "📊 Rankings",
+            `View your spot on the global ranking with ${Format.asCmdStr("ranking")}`,
+            true
+        );
+
+        scoreEmbed.addField(
+            "🎮 Play Again",
+            `${Format.asCmdStr("start")} a new game or a ${Format.asCmdStr("quick")} one!`,
+            true
+        );
+    }
+
+    msg.reply(scoreEmbed);
+};
+
+// Stop Game function
+stopGame = (msg) => {
+    clearTimeout(Game.timer);
+
+    if (Game.status.indexOf("active") != -1) displayScores(msg);
+
+    resetGame();
+    Game.status = "choosing_category";
 };
 
 /*==================MESSAGE HANDLING===================*/
