@@ -510,19 +510,23 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 _showAnswer = (msg) => {
     let answerers = Library.removeDuplicates(Game.question.answerer);
 
+    let answerEmbed = new Discord.MessageEmbed()
+        .setAuthor("Bible Quizzle", logoURL, githubURL)
+        .setTitle(`Results: Round ${Game.rounds.current} of ${Game.rounds.total}`)
+
     if (Game.question.answerer.length == 0) {
-        msg.reply(
-            "😥 <b>Oh no, nobody got it right!</b>\n" +
-            "💡 The answer was: <i>" + _getAnswer() + "</i> 💡\n" +
-            "<i>Bible Reference: " + _getReference() + "</i>",
-            Extra.HTML()
+        answerEmbed.addField(
+            `😥 Oh no, nobody got it right`,
+            `💡 The answer was: ${Format.asItalicStr(_getAnswer())} 💡\n` +
+            `${Format.asItalicStr("Bible Reference: " + _getReference())}`,
+            false
         );
     }
     else {
         let scoreboardText = "";
         let score = Game.hints.points[Game.hints.current];
         for (i = 0; i < answerers.length; i++) {
-            scoreboardText += "<b>" + answerers[i].name + "</b> +" + score + "\n";
+            scoreboardText += `${Format.asBoldStr(answerers[i].name)} +${score}\n`;
 
             // Update leaderboard
             if (Game.leaderboard[answerers[i].user_id] === undefined) {
@@ -538,29 +542,36 @@ _showAnswer = (msg) => {
                 score);
         }
 
-        msg.reply(
-            "✅ Correct!\n" +
-            "💡 <b>" + _getAnswer() + "</b> 💡\n" +
-            "<i>Bible Reference: " + _getReference() + "</i>\n\n" +
-            "🏅 <b>Scorer(s)</b> 🏅\n" +
-            scoreboardText,
-            Extra.HTML()
+        answerEmbed.addField(
+            `✅ Correct!`,
+            `💡 ${Format.asBoldStr(_getAnswer())} 💡\n` +
+            Format.asItalicStr("Bible Reference: " + _getReference()),
+            false
         );
-    }
 
-    if (Game.rounds.current >= Game.rounds.total) {
-        stopGame(msg);
-        return;
-    }
-
-    Game.status = "active_wait";
-
-    // Question shows after less time?
-    clearTimeout(Game.timer);
-    Game.timer = setTimeout(
-        () => nextQuestion(msg),
-        Game.interval * 1000 * 0.5
+        answerEmbed.addField(
+            `🏅 Scorer(s) 🏅`, 
+            scoreboardText, 
+            false
+        );
     );
+}
+
+msg.reply(answerEmbed);
+
+if (Game.rounds.current >= Game.rounds.total) {
+    stopGame(msg);
+    return;
+}
+
+Game.status = "active_wait";
+
+// Question shows after less time?
+clearTimeout(Game.timer);
+Game.timer = setTimeout(
+    () => nextQuestion(msg),
+    Game.interval * 1000 * 0.5
+);
 };
 
 /*==================HINTS AND NEXTS===================*/
