@@ -1,5 +1,8 @@
+const cmdChar = "!";
+
 module.exports = {
     name: "format",
+    cmdChar: cmdChar,
     asBoldStr: (str) => {
         return "**" + str + "**";
     },
@@ -16,6 +19,6 @@ module.exports = {
         return "~~" + str + "~~";
     },
     asCmdStr: (str) => {
-        return _asCodeStr(cmdChar + str);
+        return module.exports.asCodeStr(cmdChar + str);
     }
 };

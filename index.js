@@ -141,7 +141,8 @@ startGame = (msg, args) => {
     Game.idle.reset();
 
     msg.reply(
-        `Starting game with category ${Format.asBoldStr(Game.category)} and ${Format.asBoldStr(Game.rounds.total)} rounds!`);
+        `Starting game with category ${Format.asBoldStr(Game.category)} and ${Format.asBoldStr(Game.rounds.total)} rounds!`
+    );
 
     nextQuestion(msg);
 };
@@ -345,13 +346,14 @@ let _sendRoundsEmbed = (msg, str) => {
                             const clickedEmoji = ctx.emoji.name;
 
                             console.info("User clicked on emoji:", clickedEmoji);
-                            setRounds(sentEmbed, [
-                                roundsNumbers[roundsEmojis.indexOf(clickedEmoji)]
-                            ]);
+                            const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
+
+                            if (clickedIndex != -1) {
+                                setRounds(sentEmbed, [roundsNumbers[clickedIndex]]);
+                            }
                         })
                         .catch((err) => {
-                            console.error(err);
-                            console.info(`No response after ${maxTime/1000}s`);
+                            console.info(`${err}: No response after ${maxTime/1000}s`);
                         });
                 }
                 catch (err) {
@@ -452,7 +454,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
         );
 
     if (hintText == null) {
-        questionEmbed.addField();
+        questionEmbed.addField("Hint", hintText, false);
     }
 };
 
@@ -567,7 +569,8 @@ bot.on('message', (msg) => {
         console.info(`Called command: ${command}`);
 
         if (!bot.commands.has(command)) {
-            msg.reply(`\`${command}\` is an invalid command. Send ${Format.asCmdStr("help")} for valid commands.`);
+            msg.reply(
+                `\`${command}\` is an invalid command. Send ${Format.asCmdStr("help")} for valid commands.`);
             return;
         }
         else {

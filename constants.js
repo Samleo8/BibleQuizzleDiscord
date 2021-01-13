@@ -1,10 +1,11 @@
-const cmdChar = '!';
-
-const Format = require('format.js');
+const Format = require('./format.js');
+const suggest = require('./commands/suggest');
 
 module.exports = {
     name: "constants"
 };
+
+const cmdChar = Format.cmdChar;
 
 // Channels where welcome message would be sent
 const welcomeChannels = ['quizzle', 'biblequizzle', 'game', 'games'];
@@ -36,6 +37,12 @@ const regex = {
     non_alphanum: new RegExp("[^A-Z0-9]", "gi")
 };
 
+// Suggestion form URL
+const suggestURL = "https://forms.gle/aqZ3MK8QrBGzv9PEA";
+
+// URL to GitHub repo
+const githubURL = "https://github.com/Samleo8/BibleQuizzleDiscord";
+
 // const ADMIN_ID = 413007985;
 
 // Maximum time before reaction wait timeout
@@ -48,4 +55,6 @@ module.exports.welcomeMessage = welcomeMessage;
 module.exports.helpMessage = helpMessage;
 module.exports.regex = regex;
 module.exports.categories = categories;
+module.exports.githubURL = githubURL;
+module.exports.suggestURL = suggestURL;
 module.exports.maxTime = maxTime;
