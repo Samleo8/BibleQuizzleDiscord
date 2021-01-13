@@ -44,7 +44,8 @@ const {
     maxTime,
     githubURL,
     suggestURL,
-    logoURL
+    logoURL,
+    quickGameSettings
 } = require('./constants.js');
 
 let i, j;
@@ -143,12 +144,24 @@ startGame = (msg, args) => {
     Game.rounds.current = 0;
     Game.idle.reset();
 
+    const isQuickText = (args.length == 1 && args[0] == 'quick') ? "quick " : "";
+
     msg.reply(
-        `Starting game with category ${Format.asBoldStr(Game.category)} and ${Format.asBoldStr(Game.rounds.total)} rounds!`
+        `Starting ${isQuickText}game with category ${Format.asBoldStr(Game.category)} and ${Format.asBoldStr(Game.rounds.total)} rounds!`
     );
 
     nextQuestion(msg);
 };
+
+startQuickGame = (msg, args) => {
+    if (Game.status.indexOf("active") != -1) return;
+
+    Game.category = quickGameSettings.category;
+    Game.rounds.total = quickGameSettings.rounds;
+    args = ['quick'];
+
+    startGame(msg, args);
+}
 
 // Next Question handler
 nextQuestion = (msg) => {
@@ -658,6 +671,10 @@ nextCommand = (ctx) => {
 // Other commands
 bot.commands.set(cmdChar + "start", {
     execute: initGame
+});
+
+bot.commands.set(cmdChar + "quick", {
+    execute: startQuickGame
 });
 
 bot.commands.set(cmdChar + "category", {

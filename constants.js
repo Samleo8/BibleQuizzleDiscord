@@ -48,6 +48,12 @@ const logoURL = "";
 
 // const ADMIN_ID = 413007985;
 
+// Settings for Quick Game
+const quickGameSettings = {
+    category: "all",
+    rounds: 10
+};
+
 // Maximum time before reaction wait timeout
 const maxTime = 5 * 60000; // NOTE: in milliseconds
 
@@ -61,4 +67,5 @@ module.exports.categories = categories;
 module.exports.logoURL = logoURL;
 module.exports.githubURL = githubURL;
 module.exports.suggestURL = suggestURL;
+module.exports.quickGameSettings = quickGameSettings;
 module.exports.maxTime = maxTime;
