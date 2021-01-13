@@ -1,32 +1,35 @@
 // ================MISC. FUNCTIONS=================// 
-// Get random integer: [min,max]
-getRandomInt = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+module.exports = {
+    name: "Library",
+    // Get random integer: [min,max]
+    getRandomInt: (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
 
-// Get random float: [min,max)
-getRandomFloatExcl = (min, max) => {
-    return Math.random() * (max - min) + min;
-};
+    // Get random float: [min,max)
+    getRandomFloatExcl: (min, max) => {
+        return Math.random() * (max - min) + min;
+    },
 
-// Remove duplicates in array
-removeDuplicates = (_array) => {
-    let _i, _j, arr = [];
-    let found = false;
-    for (_i = 0; _i < _array.length; _i++) {
-        found = false;
-        for (_j = 0; _j < arr.length; _j++) {
-            if (_array[_i] == arr[_j] || (JSON.stringify(_array[_i]) == JSON.stringify(arr[_j]) && typeof _array[
-                        _i] ==
-                    typeof arr[_j])) {
-                found = true;
-                break;
+    // Remove duplicates in array
+    removeDuplicates: (_array) => {
+        let _i, _j, arr = [];
+        let found = false;
+        for (_i = 0; _i < _array.length; _i++) {
+            found = false;
+            for (_j = 0; _j < arr.length; _j++) {
+                if (_array[_i] == arr[_j] || (JSON.stringify(_array[_i]) == JSON.stringify(arr[_j]) && typeof _array[
+                            _i] ==
+                        typeof arr[_j])) {
+                    found = true;
+                    break;
+                }
             }
+            if (!found) arr.push(_array[_i]);
         }
-        if (!found) arr.push(_array[_i]);
-    }
 
-    return arr;
+        return arr;
+    },
 };
 
 // Convert to title case

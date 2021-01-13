@@ -350,21 +350,24 @@ let _sendRoundsEmbed = (msg, str) => {
                     await sentEmbed.react(roundsEmojis[3]);
 
                     await sentEmbed.awaitReactions(
-                            (reactions, user) => roundsEmojis.includes(reactions.emoji.name), {
+                            (reactions) => roundsEmojis.includes(reactions.emoji.name), {
                                 max: 1,
                                 time: maxTime
                             })
                         .then((collected) => {
-                            const clickedEmoji = collected.first()
-                                .emoji.name;
-                            console.log("User ", user.name, " clicked on emoji:", clickedEmoji);
+                            const ctx = collected.first();
+                            const clickedEmoji = ctx.emoji.name;
+
+                            console.log(ctx);
+                            console.log("User clicked on emoji:", clickedEmoji);
                             setRounds(sentEmbed, [
                                 roundsNumbers[roundsEmojis.indexOf(clickedEmoji)]
                             ]);
                         })
-                        .catch(() => {
-                            console.log(`No response after ${maxTime/1000}s`);
-                        });
+                        // .catch((err) => {
+                        //     console.error(err);
+                        //     console.log(`No response after ${maxTime/1000}s`);
+                        // });
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
@@ -442,7 +445,7 @@ _getAnswer = () => {
 _getReference = () => {
     if (Game.category != null && Game.question.id != null) {
         let _q = questions[Game.category][Game.question.id]["reference"];
-        if (_q != null /* && typeof _q != "undefined" */ )
+        if (_q != null)
             return _q.toString();
     }
 
