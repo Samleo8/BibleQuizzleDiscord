@@ -344,10 +344,8 @@ let _sendRoundsEmbed = (msg, str) => {
             async (sentEmbed) => {
                 // Enforce order
                 try {
-                    await sentEmbed.react(roundsEmojis[0]);
-                    await sentEmbed.react(roundsEmojis[1]);
-                    await sentEmbed.react(roundsEmojis[2]);
-                    await sentEmbed.react(roundsEmojis[3]);
+                    for (ii in roundsEmojis)
+                        await sentEmbed.react(roundsEmojis[ii]);
 
                     await sentEmbed.awaitReactions(
                             (reactions) => roundsEmojis.includes(reactions.emoji.name), {
@@ -364,10 +362,10 @@ let _sendRoundsEmbed = (msg, str) => {
                                 roundsNumbers[roundsEmojis.indexOf(clickedEmoji)]
                             ]);
                         })
-                        // .catch((err) => {
-                        //     console.error(err);
-                        //     console.log(`No response after ${maxTime/1000}s`);
-                        // });
+                        .catch((err) => {
+                            console.error(err);
+                            console.log(`No response after ${maxTime/1000}s`);
+                        });
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
