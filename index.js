@@ -369,14 +369,14 @@ let _sendRoundsEmbed = (msg, str) => {
                                 time: maxTime
                             })
                         .then((collected) => {
-                            const msg = collected.first();
-                            const clickedEmoji = msg.emoji.name;
+                            const ctx = collected.first();
+                            const clickedEmoji = ctx.emoji.name;
 
                             console.info("User clicked on emoji:", clickedEmoji);
                             const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
 
                             if (clickedIndex != -1) {
-                                setRounds(sentEmbed, [roundsNumbers[clickedIndex]]);
+                                setRounds(ctx, [roundsNumbers[clickedIndex]]);
                             }
                         })
                         .catch((err) => {
@@ -486,7 +486,11 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 
     // Show hint text as code
     if (hintText != null) {
-        questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, Format.asCodeStr(hintText),
+        const hintTextFormatted = hintText.split("")
+            .join(" ");
+            
+        questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, Format.asCodeStr(
+                hintTextFormatted),
             false);
     }
 
@@ -509,17 +513,19 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 
                     await sentEmbed.awaitReactions(
                             (reactions) => [hintEmoji, nextEmoji].includes(reactions.emoji.name), {
-                                max: 1
+                                max: 2,
+                                time: Game.interval * 1.5 * 1000 // a bit extra time
                             })
                         .then((collected) => {
-                            const msg = collected.first();
-                            const clickedEmoji = msg.emoji.name;
+                            const ctx = collected.first();
+                            const clickedEmoji = ctx.emoji.name;
 
+                            console.info();
                             if (clickedEmoji == hintEmoji) {
-                                nextHint(msg, _);
+                                nextHint(msg, ctx);
                             }
                             else if (clickedEmoji == nextEmoji) {
-                                nextCommand(msg, _);
+                                nextCommand(msg, ctx);
                             }
                         })
                         .catch((err) => {
@@ -645,7 +651,7 @@ nextHint = (msg, args) => {
 
         Game.hints.unrevealedIndex.splice(r, 1); // remove revealed character from `unrevealedIndex` array
     }
-    hint = hint.join(" ")
+    hint = hint.join("")
         .toString();
 
     _showQuestion(msg, questionText, categoriesText, hint);
