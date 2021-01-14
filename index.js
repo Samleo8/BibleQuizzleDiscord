@@ -47,7 +47,8 @@ const {
     logoURL,
     quickGameSettings,
     embedColor,
-    embedFooter
+    embedFooter,
+    logoAttachment
 } = require('./constants.js');
 
 let i, j;
@@ -55,6 +56,7 @@ let i, j;
 // Template Embed
 const templateEmbed = new Discord.MessageEmbed()
     .setColor(embedColor)
+    .attachFiles(logoAttachment)
     // .setURL(githubURL)
     .setAuthor("Bible Quizzle", logoURL, githubURL)
     .setThumbnail(logoURL)
