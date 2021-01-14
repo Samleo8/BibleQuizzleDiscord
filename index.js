@@ -45,7 +45,8 @@ const {
     githubURL,
     suggestURL,
     logoURL,
-    quickGameSettings
+    quickGameSettings,
+    embedColor
 } = require('./constants.js');
 
 let i, j;
