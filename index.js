@@ -58,7 +58,7 @@ const templateEmbed = new Discord.MessageEmbed()
     // .setURL(githubURL)
     .setAuthor("Bible Quizzle", logoURL, githubURL)
     .setThumbnail(logoURL)
-    .setFooter(embedFooter, logoURL)
+    .setFooter(embedFooter)
     .setTimestamp()
 
 /*==================WELCOME MESSAGE===================*/
