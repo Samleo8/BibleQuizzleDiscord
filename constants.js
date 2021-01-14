@@ -4,8 +4,6 @@ module.exports = {
     name: "constants"
 };
 
-const cmdChar = Format.cmdChar;
-
 // Channels where welcome message would be sent
 const welcomeChannels = ['quizzle', 'biblequizzle', 'game', 'games'];
 
@@ -44,7 +42,10 @@ const githubURL = "https://github.com/Samleo8/BibleQuizzleDiscord";
 
 // URL to logo
 // TODO: make one!
-const logoURL = "";
+const logoURL = "./logo.png";
+
+// Color for Embed
+const embedColor = "BLURPLE";
 
 // const ADMIN_ID = 413007985;
 
@@ -58,12 +59,13 @@ const quickGameSettings = {
 const maxTime = 5 * 60000; // NOTE: in milliseconds
 
 // Export all constants
-module.exports.cmdChar = cmdChar;
+module.exports.cmdChar = Format.cmdChar;
 module.exports.welcomeChannels = welcomeChannels;
 module.exports.welcomeMessage = welcomeMessage;
 module.exports.helpMessage = helpMessage;
 module.exports.regex = regex;
 module.exports.categories = categories;
+module.exports.embedColor = embedColor;
 module.exports.logoURL = logoURL;
 module.exports.githubURL = githubURL;
 module.exports.suggestURL = suggestURL;

@@ -50,6 +50,11 @@ const {
 
 let i, j;
 
+// Template Embed
+const templateEmbed = new Discord.MessageEmbed()
+    .setAuthor("Bible Quizzle", logoURL, githubURL)
+    .setColor(embedColor)
+
 /*==================WELCOME MESSAGE===================*/
 // Bot Commands
 // From ./commands folder
@@ -274,7 +279,7 @@ let initGame = (msg, _) => {
 };
 
 // Make Category Embed from `categories`
-const catEmbed = new Discord.MessageEmbed()
+const catEmbed = new Discord.MessageEmbed(templateEmbed)
     .setTitle("Categories")
     .setDescription("Choose a valid category with `!category <valid category name>`");
 
@@ -329,7 +334,7 @@ let setCategory = (msg, args) => {
 const roundsEmojis = ["🕐", "🕑", "🕔", "🕙"];
 const roundsNumbers = [10, 20, 50, 100];
 
-const roundsEmbed = new Discord.MessageEmbed()
+const roundsEmbed = new Discord.MessageEmbed(templateEmbed)
     .setTitle("Rounds")
     .setDescription(
         `Choose number of rounds/questions with ${Format.asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
@@ -463,8 +468,7 @@ const nextEmoji = "⏭️";
 
 _showQuestion = (msg, questionText, categoriesText, hintText) => {
     // Build the question embed
-    let questionEmbed = new Discord.MessageEmbed()
-        .setAuthor("Bible Quizzle", logoURL, githubURL)
+    let questionEmbed = new Discord.MessageEmbed(templateEmbed)
         .setTitle(`Question ${Game.rounds.current} of ${Game.rounds.total}`)
 
     questionEmbed.addField(
@@ -525,8 +529,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 _showAnswer = (msg) => {
     const answerers = Library.removeDuplicates(Game.question.answerer);
 
-    const answerEmbed = new Discord.MessageEmbed()
-        .setAuthor("Bible Quizzle", logoURL, githubURL)
+    const answerEmbed = new Discord.MessageEmbed(templateEmbed)
         .setTitle(`Results: Round ${Game.rounds.current} of ${Game.rounds.total}`)
 
     if (Game.question.answerer.length == 0) {
@@ -683,8 +686,7 @@ displayScores = (msg) => {
         scoreboardArr.push(Game.leaderboard[i]);
     }
 
-    const scoreEmbed = new Discord.MessageEmbed()
-        .setAuthor("Bible Quizzle", logoURL, githubURL)
+    const scoreEmbed = new Discord.MessageEmbed(templateEmbed)
         .setTitle("Scores")
         .setDescription("");
 
