@@ -50,6 +50,9 @@ const {
     embedFooter,
     logoAttachment
 } = require('./constants.js');
+const {
+    asStrikeThroughStr
+} = require('./format.js');
 
 let i, j;
 
@@ -363,25 +366,24 @@ let _sendRoundsEmbed = (msg, str) => {
                     for (ii in roundsEmojis)
                         await sentEmbed.react(roundsEmojis[ii]);
 
-                    await sentEmbed.awaitReactions(
-                            (reactions) => roundsEmojis.includes(reactions.emoji.name), {
-                                max: 1,
-                                time: maxTime
-                            })
-                        .then((collected) => {
-                            const ctx = collected.first();
-                            const clickedEmoji = ctx.emoji.name;
+                    const filter =
+                        (reactions, user) => roundsEmojis.includes(reactions.emoji.name) && !user.bot;
 
-                            console.info("User clicked on emoji:", clickedEmoji);
-                            const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
+                    const collector = sentEmbed.createcreateReactionCollector(filter, {
+                        max: 1,
+                        time: maxTime
+                    });
 
-                            if (clickedIndex != -1) {
-                                setRounds(ctx, [roundsNumbers[clickedIndex]]);
-                            }
-                        })
-                        .catch((err) => {
-                            console.info(`${err}: No response after ${maxTime/1000}s`);
-                        });
+                    collector.on('collect', (reaction, user) => {
+                        const clickedEmoji = reaction.emoji.name;
+
+                        console.info("User", user.name, "clicked on emoji:", clickedEmoji);
+                        const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
+
+                        if (clickedIndex != -1) {
+                            setRounds(ctx, [roundsNumbers[clickedIndex]]);
+                        }
+                    });
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
@@ -471,6 +473,10 @@ _getName = (msg) => {
     return msg.author.username;
 };
 
+_getUserID = (msg) => {
+    return msg.author.user_id;
+}
+
 const hintEmoji = "❔";
 const nextEmoji = "⏭️";
 
@@ -488,7 +494,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
     if (hintText != null) {
         const hintTextFormatted = hintText.split("")
             .join(" ");
-            
+
         questionEmbed.addField(`Hint ${Game.hints.current} of ${Game.hints.total}`, Format.asCodeStr(
                 hintTextFormatted),
             false);
@@ -511,16 +517,18 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                     await sentEmbed.react(hintEmoji);
                     await sentEmbed.react(nextEmoji);
 
-                    await sentEmbed.awaitReactions(
-                            (reactions) => [hintEmoji, nextEmoji].includes(reactions.emoji.name), {
-                                max: 2,
+                    const filter = (reactions, user) => [hintEmoji, nextEmoji].includes(reactions.emoji.name) &&
+                        !user.bot;
+
+                    sentEmbed.awaitReactions(
+                            filter, {
+                                max: Game.nexts.total,
                                 time: Game.interval * 1.5 * 1000 // a bit extra time
                             })
                         .then((collected) => {
                             const ctx = collected.first();
                             const clickedEmoji = ctx.emoji.name;
 
-                            console.info();
                             if (clickedEmoji == hintEmoji) {
                                 nextHint(msg, ctx);
                             }
@@ -674,14 +682,24 @@ nextCommand = (msg, args) => {
     Game.idle.reset();
 
     // TODO: Get ID properly
-    let id = (msg.callbackQuery == undefined || msg.callbackQuery.from == undefined || msg.callbackQuery.from.id ==
-            undefined) ?
-        msg.message.from.id : msg.callbackQuery.from.id;
+    let id;
 
-    Game.nexts.current[id] = 1;
+    if (args != null && args.length != undefined && args.has(users)) {
+        for (id in args.users.cache) {
+            if (id == bot.id) continue;
+
+            console.log(id);
+            Game.nexts.current[id] = 1;
+        }
+    }
+    else {
+        id = _getUserID(msg);
+        console.log(id);
+        Game.nexts.current[id] = 1;
+    }
 
     if (Object.keys(Game.nexts.current)
-        .length >= Game.nexts.total || msg.chat.type == "private")
+        .length >= Game.nexts.total || msg.guild === null)
         return _showAnswer(msg);
 
     return nextHint(msg, args);
