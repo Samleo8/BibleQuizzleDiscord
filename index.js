@@ -46,15 +46,20 @@ const {
     suggestURL,
     logoURL,
     quickGameSettings,
-    embedColor
+    embedColor,
+    embedFooter
 } = require('./constants.js');
 
 let i, j;
 
 // Template Embed
 const templateEmbed = new Discord.MessageEmbed()
-    .setAuthor("Bible Quizzle", logoURL, githubURL)
     .setColor(embedColor)
+    // .setURL(githubURL)
+    .setAuthor("Bible Quizzle", logoURL, githubURL)
+    .setThumbnail(logoURL)
+    .setFooter(embedFooter, logoURL)
+    .setTimestamp()
 
 /*==================WELCOME MESSAGE===================*/
 // Bot Commands

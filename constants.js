@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const Format = require('./format.js');
 
 module.exports = {
@@ -41,11 +42,18 @@ const suggestURL = "https://forms.gle/aqZ3MK8QrBGzv9PEA";
 const githubURL = "https://github.com/Samleo8/BibleQuizzleDiscord";
 
 // URL to logo
+const logoAttachment = new Discord.MessageAttachment('./img/logo.png', 'logo.png');
+
 // TODO: make one!
-const logoURL = "./logo.png";
+//-- NOTE: 
+// const logoURL = "attachment://logo.png";
+const logoURL = "https://raw.githubusercontent.com/Samleo8/BibleQuizzleDiscord/master/img/logo.png";
 
 // Color for Embed
 const embedColor = "BLURPLE";
+
+// Footer text for embeds
+const embedFooter = "© Samuel Leong";
 
 // const ADMIN_ID = 413007985;
 
@@ -66,6 +74,8 @@ module.exports.helpMessage = helpMessage;
 module.exports.regex = regex;
 module.exports.categories = categories;
 module.exports.embedColor = embedColor;
+module.exports.embedFooter = embedFooter;
+module.exports.logoAttachment = logoAttachment;
 module.exports.logoURL = logoURL;
 module.exports.githubURL = githubURL;
 module.exports.suggestURL = suggestURL;
