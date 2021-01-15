@@ -367,9 +367,11 @@ let _sendRoundsEmbed = (msg, str) => {
                         await sentEmbed.react(roundsEmojis[ii]);
 
                     const filter =
-                        (reactions, user) => roundsEmojis.includes(reactions.emoji.name) && !user.bot;
+                        (reactions, user) => {
+                            return roundsEmojis.includes(reactions.emoji.name) && !user.bot;
+                        };
 
-                    const collector = sentEmbed.createcreateReactionCollector(filter, {
+                    const collector = sentEmbed.createReactionCollector(filter, {
                         max: 1,
                         time: maxTime
                     });
@@ -377,12 +379,16 @@ let _sendRoundsEmbed = (msg, str) => {
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
 
-                        console.info("User", user.name, "clicked on emoji:", clickedEmoji);
+                        console.info("User", user.name, "reacted with:", clickedEmoji);
                         const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
 
                         if (clickedIndex != -1) {
-                            setRounds(ctx, [roundsNumbers[clickedIndex]]);
+                            setRounds(sentEmbed, [roundsNumbers[clickedIndex]]);
                         }
+                    });
+
+                    collector.on('end', (reaction, user) => {
+                        console.info(`Either hit max responses or no repsonses after ${maxTime/1000}s`);
                     });
                 }
                 catch (err) {
@@ -474,7 +480,7 @@ _getName = (msg) => {
 };
 
 _getUserID = (msg) => {
-    return msg.author.user_id;
+    return msg.author.id;
 }
 
 const hintEmoji = "❔";
@@ -517,28 +523,34 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                     await sentEmbed.react(hintEmoji);
                     await sentEmbed.react(nextEmoji);
 
-                    const filter = (reactions, user) => [hintEmoji, nextEmoji].includes(reactions.emoji.name) &&
-                        !user.bot;
+                    const filter = (reactions, user) => {
+                        return [hintEmoji, nextEmoji].includes(reactions.emoji.name) &&
+                            !user.bot
+                    };
 
-                    sentEmbed.awaitReactions(
-                            filter, {
-                                max: Game.nexts.total,
-                                time: Game.interval * 1.5 * 1000 // a bit extra time
-                            })
-                        .then((collected) => {
-                            const ctx = collected.first();
-                            const clickedEmoji = ctx.emoji.name;
+                    const questionWaitTime = Game.interval * 1.5 * 1000; // a bit extra time
+                    const collector = sentEmbed.createReactionCollector(filter, {
+                        max: Game.nexts.total,
+                        time: questionWaitTime
+                    });
 
-                            if (clickedEmoji == hintEmoji) {
-                                nextHint(msg, ctx);
-                            }
-                            else if (clickedEmoji == nextEmoji) {
-                                nextCommand(msg, ctx);
-                            }
-                        })
-                        .catch((err) => {
-                            console.info(`${err}: No response after ${maxTime/1000}s`);
-                        });
+                    collector.on('collect', (reaction, user) => {
+                        const clickedEmoji = reaction.emoji.name;
+                        console.info("User", user.name, "reacted with:", clickedEmoji);
+
+                        if (clickedEmoji == hintEmoji) {
+                            nextHint(msg, user);
+                        }
+                        else if (clickedEmoji == nextEmoji) {
+                            nextCommand(msg, user);
+                        }
+                    });
+
+                    collector.on('end', (reaction, user) => {
+                        console.info(
+                            `Either hit max responses, or no response after ${questionWaitTime/1000}s`
+                            );
+                    });
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
@@ -570,16 +582,17 @@ _showAnswer = (msg) => {
             scoreboardText += `${Format.asBoldStr(answerers[i].name)} +${score}\n`;
 
             // Update leaderboard
-            if (Game.leaderboard[answerers[i].user_id] === undefined) {
+            if (Game.leaderboard[answerers[i].id] === undefined) {
                 // Player doesn't exist in scoreboard, create empty object
-                Game.leaderboard[answerers[i].user_id] = {
-                    "id": answerers[i].user_id,
+                Game.leaderboard[answerers[i].id] = {
+                    "id": answerers[i].id,
                     "score": 0, // score set at 0
                     "name": answerers[i].name
                 };
             }
 
-            Game.leaderboard[answerers[i].user_id].score = parseInt(Game.leaderboard[answerers[i].user_id].score +
+            Game.leaderboard[answerers[i].id].score = parseInt(Game.leaderboard[answerers[i].id]
+                .score +
                 score);
         }
 
@@ -684,19 +697,16 @@ nextCommand = (msg, args) => {
     // TODO: Get ID properly
     let id;
 
-    if (args != null && args.length != undefined && args.has(users)) {
-        for (id in args.users.cache) {
-            if (id == bot.id) continue;
-
-            console.log(id);
-            Game.nexts.current[id] = 1;
-        }
+    if (args != null && args.length != undefined && args.has(id)) {
+        id = user.id;
     }
     else {
         id = _getUserID(msg);
-        console.log(id);
-        Game.nexts.current[id] = 1;
     }
+
+    console.log("ID: ", id);
+
+    Game.nexts.current[id] = 1;
 
     if (Object.keys(Game.nexts.current)
         .length >= Game.nexts.total || msg.guild === null)
@@ -845,7 +855,8 @@ bot.on('message', (msg) => {
 
         if (!bot.commands.has(command)) {
             msg.reply(
-                `\`${command}\` is an invalid command. Send ${Format.asCmdStr("help")} for valid commands.`);
+                `\`${command}\` is an invalid command. Send ${Format.asCmdStr("help")} for valid commands.`
+            );
             return;
         }
         else {
