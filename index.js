@@ -379,7 +379,7 @@ let _sendRoundsEmbed = (msg, str) => {
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
 
-                        console.info("User", user.name, "reacted with:", clickedEmoji);
+                        console.info("User", user.username, "reacted with:", clickedEmoji);
                         const clickedIndex = roundsEmojis.indexOf(clickedEmoji);
 
                         if (clickedIndex != -1) {
@@ -536,7 +536,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
 
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
-                        console.info("User", user.name, "reacted with:", clickedEmoji);
+                        console.info("User", user.username, "reacted with:", clickedEmoji);
 
                         if (clickedEmoji == hintEmoji) {
                             nextHint(msg, user);
@@ -579,7 +579,7 @@ _showAnswer = (msg) => {
         let score = Game.hints.points[Game.hints.current];
         for (i = 0; i < answerers.length; i++) {
             // TODO: may need to update API
-            scoreboardText += `${Format.asBoldStr(answerers[i].name)} +${score}\n`;
+            scoreboardText += `${Format.asBoldStr(answerers[i].username)} +${score}\n`;
 
             // Update leaderboard
             if (Game.leaderboard[answerers[i].id] === undefined) {
@@ -587,7 +587,7 @@ _showAnswer = (msg) => {
                 Game.leaderboard[answerers[i].id] = {
                     "id": answerers[i].id,
                     "score": 0, // score set at 0
-                    "name": answerers[i].name
+                    "name": answerers[i].username
                 };
             }
 
