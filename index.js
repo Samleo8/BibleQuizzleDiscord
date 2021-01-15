@@ -774,6 +774,170 @@ displayScores = (msg) => {
     msg.reply(scoreEmbed);
 };
 
+//--Sort Leaderboard
+_sortLeaderboard = () => {
+    Game.global_leaderboard.sort(function(a, b) {
+        return b.score - a.score;
+    });
+};
+
+// --Get global ranking
+_getGlobalRanking = () => {
+    // Check if file exists; if not, create it to prevent problems with access permissions
+    if (!fs.existsSync("leaderboard.json")) {
+        log("leaderboard.json doesn't exist... creating file..");
+
+        fs.writeFileSync(
+            'leaderboard.json',
+            JSON.stringify(Game.global_leaderboard, null, 4)
+        );
+
+        log("File leaderboard.json created!");
+        return Game.global_leaderboard;
+    }
+
+    // Retrieve data from leaderboard.json
+    Game.global_leaderboard = JSON.parse(fs.readFileSync('leaderboard.json', 'utf8'));
+
+    return Game.global_leaderboard;
+};
+
+// --Get ranking of individual user by `user_id`
+_getRanking = (user_id, ctx) => {
+    // First retrieve array data from leaderboard.json
+    _getGlobalRanking();
+
+    if (user_id == null /*|| typeof user_id == "undefined"*/ ) return;
+
+    // Find the user's data in the array
+    let ind = Game.global_leaderboard.findIndex((item, i) => {
+        return item.id == user_id;
+    });
+
+    if (ind == -1) {
+        // Data of user doesn't exist:
+        // Add it to the leaderboard array
+        Game.global_leaderboard.push({
+            "id": user_id,
+            "name": Game.leaderboard[user_id].name,
+            "score": 0
+        });
+
+        // Sort and save
+        _sortLeaderboard();
+
+        let data = JSON.stringify(Game.global_leaderboard, null, 4);
+
+        log("Global leaderboard: " + data);
+
+        fs.writeFileSync('leaderboard.json', data);
+
+        log("File written for new user " + user_id + ", data: " + data);
+
+        // Return new index
+        ind = Game.global_leaderboard.findIndex((item, i) => {
+            return item.id == user_id;
+        });
+
+        return ind;
+    }
+    else {
+        return ind;
+    }
+};
+
+// --Update leaderboard for user `user_id` with score `score`
+_setRankingIndividual = (user_id, score, ctx) => {
+    if (user_id == null /*|| typeof user_id == "undefined"*/ ) return;
+
+    let ind = _getRanking(user_id, ctx);
+
+    // Change score
+    if (!isNaN(parseInt(score)) && !isNaN(parseInt(ind))) {
+        Game.global_leaderboard[ind].score += score;
+    }
+};
+
+// Set multiple rankings at once to save time on constantly sorting
+// Also generate the output text
+_setGlobalRanking = (scoreboardArr, ctx) => {
+    let scoreboardText = "";
+
+    // First sort the top scorers from `scoreboardArr` in descending order (highest score first)
+    scoreboardArr.sort(function(a, b) {
+        return b.score - a.score;
+    });
+
+    // Then loop through sorted scoreboard array to set individual ranking
+    for (i = 0; i < scoreboardArr.length; i++) {
+        scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" +
+            scoreboardArr[i].score + " points)</i>\n";
+
+        _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
+    }
+
+    // Sort and save
+    _sortLeaderboard();
+
+    fs.writeFileSync(
+        'leaderboard.json',
+        JSON.stringify(Game.global_leaderboard, null, 4)
+    );
+
+    // TODO: Fix issue #15, then remove
+    _sendAdminJSONRanking(ctx);
+
+    return scoreboardText;
+};
+
+// TODO: Ranking text
+_showRanking = (msg, args) => {
+    let ind = _getRanking(_getUserID(msg), msg);
+    // Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
+
+    let leaderboardText = '';
+    for (i = 0; i < Math.min(Game.global_leaderboard.length, 20); i++) {
+        if (ind == i) leaderboardText += "👉 ";
+
+        switch (i) {
+            case 0:
+                leaderboardText += "🥇 ";
+                break;
+            case 1:
+                leaderboardText += "🥈 ";
+                break;
+            case 2:
+                leaderboardText += "🥉 ";
+                break;
+            default:
+                leaderboardText += "<b>" + parseInt(i + 1) + ".</b> ";
+        }
+
+        leaderboardText += "<b>" + Game.global_leaderboard[i].name + "</b> ";
+        // if(ind == i) leaderboardText+="<b>";
+        leaderboardText += "<i>(" + Game.global_leaderboard[i].score + " points)</i>";
+        // if(ind == i) leaderboardText+="</b>";
+
+        if (ind == i) leaderboardText += " 👈";
+
+        leaderboardText += "\n";
+    }
+
+    // User is not part of the top 20
+    if (ind >= 20) {
+        leaderboardText += "<b>👉 " + Game.global_leaderboard[ind].name + " <i>(" + Game.global_leaderboard[ind]
+            .score +
+            " points)</i> 👈</b>";
+    }
+
+    msg.reply(
+        "🏆 <b>Global Ranking</b> 🏆\n" +
+        "<b>----------------------------------</b>\n" +
+        leaderboardText,
+        Extra.HTML()
+    );
+};
+
 // Stop Game function
 stopGame = (msg) => {
     clearTimeout(Game.timer);
@@ -808,6 +972,10 @@ bot.commands.set(cmdChar + "category", {
 
 bot.commands.set(cmdChar + "rounds", {
     execute: setRounds
+});
+
+bot.commands.set(cmdChar + "ranking", {
+    execute: _showRanking
 });
 
 bot.commands.set(cmdChar + "stop", {
