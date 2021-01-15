@@ -945,23 +945,22 @@ let prevSentAdminMessageID = 0;
 _sendAdminJSONRanking = (ctx) => {
     _getGlobalRanking();
 
-    // Delete any old messages sent by the bot
-    if (prevSentAdminMessageID != 0) {
-        const chatID = ADMIN_ID;
-        const msgID = prevSentAdminMessageID;
+    const adminUser = bot.users.get(ADMIN_ID);
 
-        bot.telegram.deleteMessage(chatID, msgID)
-            .catch((reason) => {
-                log('Failed to delete message: ' + reason, "ERROR");
-            });
-    }
+    // TODO: Delete any old messages sent by the bot
+    // if (prevSentAdminMessageID != 0) {
+    //     const msgID = prevSentAdminMessageID;
 
-    bot.telegram.sendMessage(ADMIN_ID,
-            JSON.stringify(Game.global_leaderboard, null, 4), {
-                disable_notification: true
-            })
+    //     adminUser.deleteMessage(chatID, msgID)
+    //         .catch((reason) => {
+    //             log('Failed to delete message: ' + reason, "ERROR");
+    //         });
+    // }
+
+    adminUser.send(JSON.stringify(Game.global_leaderboard, null, 4))
         .then((messageReturn) => {
-            prevSentAdminMessageID = messageReturn.message_id;
+            // TODO: check this
+            prevSentAdminMessageID = messageReturn.id;
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
