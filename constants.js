@@ -55,7 +55,7 @@ const embedColor = "BLURPLE";
 // Footer text for embeds
 const embedFooter = "© Samuel Leong";
 
-// const ADMIN_ID = 413007985;
+const ADMIN_ID = 383880031786762254;
 
 // Settings for Quick Game
 const quickGameSettings = {
@@ -81,3 +81,4 @@ module.exports.githubURL = githubURL;
 module.exports.suggestURL = suggestURL;
 module.exports.quickGameSettings = quickGameSettings;
 module.exports.maxTime = maxTime;
+module.exports.ADMIN_ID = ADMIN_ID;

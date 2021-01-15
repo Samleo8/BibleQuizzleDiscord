@@ -48,7 +48,8 @@ const {
     quickGameSettings,
     embedColor,
     embedFooter,
-    logoAttachment
+    logoAttachment,
+    ADMIN_ID
 } = require('./constants.js');
 const {
     asStrikeThroughStr
@@ -936,6 +937,34 @@ _showRanking = (msg, args) => {
         leaderboardText,
         Extra.HTML()
     );
+};
+
+// Send admin the ranking JSON
+let prevSentAdminMessageID = 0;
+
+_sendAdminJSONRanking = (ctx) => {
+    _getGlobalRanking();
+
+    // Delete any old messages sent by the bot
+    if (prevSentAdminMessageID != 0) {
+        const chatID = ADMIN_ID;
+        const msgID = prevSentAdminMessageID;
+
+        bot.telegram.deleteMessage(chatID, msgID)
+            .catch((reason) => {
+                log('Failed to delete message: ' + reason, "ERROR");
+            });
+    }
+
+    bot.telegram.sendMessage(ADMIN_ID,
+            JSON.stringify(Game.global_leaderboard, null, 4), {
+                disable_notification: true
+            })
+        .then((messageReturn) => {
+            prevSentAdminMessageID = messageReturn.message_id;
+        }, (failureReason) => {
+            log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
+        });
 };
 
 // Stop Game function
