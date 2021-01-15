@@ -549,7 +549,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                     collector.on('end', (reaction, user) => {
                         console.info(
                             `Either hit max responses, or no response after ${questionWaitTime/1000}s`
-                            );
+                        );
                     });
                 }
                 catch (err) {
@@ -578,22 +578,22 @@ _showAnswer = (msg) => {
         let scoreboardText = "";
         let score = Game.hints.points[Game.hints.current];
         for (i = 0; i < answerers.length; i++) {
-            // TODO: may need to update API
-            scoreboardText += `${Format.asBoldStr(answerers[i].username)} +${score}\n`;
+            const answererName = answerers[i].username;
+            const answererID = answerers[i].id;
+
+            scoreboardText += `${Format.asBoldStr(answererName)} +${score}\n`;
 
             // Update leaderboard
-            if (Game.leaderboard[answerers[i].id] === undefined) {
+            if (Game.leaderboard[answererID] === undefined) {
                 // Player doesn't exist in scoreboard, create empty object
-                Game.leaderboard[answerers[i].id] = {
-                    "id": answerers[i].id,
+                Game.leaderboard[answererID] = {
+                    "id": answererID,
                     "score": 0, // score set at 0
-                    "name": answerers[i].username
+                    "name": answererName
                 };
             }
 
-            Game.leaderboard[answerers[i].id].score = parseInt(Game.leaderboard[answerers[i].id]
-                .score +
-                score);
+            Game.leaderboard[answererID].score = parseInt(Game.leaderboard[answererID].score + score);
         }
 
         answerEmbed.addField(
@@ -670,7 +670,8 @@ nextHint = (msg, args) => {
 
         hint[ind] = answerText[ind]; // reveal character at index `ind`
 
-        Game.hints.unrevealedIndex.splice(r, 1); // remove revealed character from `unrevealedIndex` array
+        // remove revealed character from `unrevealedIndex` array
+        Game.hints.unrevealedIndex.splice(r, 1);
     }
     hint = hint.join("")
         .toString();
