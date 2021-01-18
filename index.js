@@ -808,7 +808,7 @@ _getRanking = (user_id, ctx) => {
     // First retrieve array data from leaderboard.json
     _getGlobalRanking();
 
-    if (user_id == null /*|| typeof user_id == "undefined"*/ ) return;
+    if (user_id == null) return;
 
     // Find the user's data in the array
     let ind = Game.global_leaderboard.findIndex((item, i) => {
@@ -871,8 +871,12 @@ _setGlobalRanking = (scoreboardArr, ctx) => {
 
     // Then loop through sorted scoreboard array to set individual ranking
     for (i = 0; i < scoreboardArr.length; i++) {
-        scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" +
-            scoreboardArr[i].score + " points)</i>\n";
+        scoreboardText += Format.asBoldStr(
+                parseInt(i + 1) + ". " + scoreboardArr[i].name
+            ) +
+            Format.asItalicStr(
+                "(" + scoreboardArr[i].score + " points)"
+            ) + "\n";
 
         _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
     }
