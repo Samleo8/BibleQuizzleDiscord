@@ -923,8 +923,8 @@ _showRanking = (msg, args) => {
                     .toString());
         }
 
-        leaderboardText += Format.asBoldStr(Game.global_leaderboard[i].name);
-        leaderboardText += Format.asItalicStr(Game.global_leaderboard[i].score);
+        leaderboardText += Format.asBoldStr(Game.global_leaderboard[i].name) + " ";
+        leaderboardText += Game.global_leaderboard[i].score;
 
         if (ind == i) leaderboardText += " 👈";
 
@@ -933,7 +933,7 @@ _showRanking = (msg, args) => {
 
     // User is not part of the top 20
     if (ind >= 20) {
-        leaderboardText += Format.asBoldStr("👉 " + Game.global_leaderboard[ind].name + Format.asItalicStr("(" +
+        leaderboardText += Format.asBoldStr("👉 " + Game.global_leaderboard[ind].name + " " + Format.asItalicStr("(" +
             Game.global_leaderboard[ind].score + " points)") + " 👈");
     }
 
