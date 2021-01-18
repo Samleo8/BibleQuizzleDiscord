@@ -911,13 +911,12 @@ _showRanking = (msg, args) => {
                 leaderboardText += "🥉 ";
                 break;
             default:
-                leaderboardText += "<b>" + parseInt(i + 1) + ".</b> ";
+                leaderboardText += Format.asBoldStr(parseInt(i + 1)
+                    .toString());
         }
 
-        leaderboardText += "<b>" + Game.global_leaderboard[i].name + "</b> ";
-        // if(ind == i) leaderboardText+="<b>";
-        leaderboardText += "<i>(" + Game.global_leaderboard[i].score + " points)</i>";
-        // if(ind == i) leaderboardText+="</b>";
+        leaderboardText += Format.asBoldStr(Game.global_leaderboard[i].name);
+        leaderboardText += Format.asItalicStr(Game.global_leaderboard[i].score);
 
         if (ind == i) leaderboardText += " 👈";
 
@@ -926,17 +925,15 @@ _showRanking = (msg, args) => {
 
     // User is not part of the top 20
     if (ind >= 20) {
-        leaderboardText += "<b>👉 " + Game.global_leaderboard[ind].name + " <i>(" + Game.global_leaderboard[ind]
-            .score +
-            " points)</i> 👈</b>";
+        leaderboardText += Format.asBoldStr("👉 " + Game.global_leaderboard[ind].name + Format.asItalicStr("(" +
+            Game.global_leaderboard[ind].score + " points)") + " 👈");
     }
 
-    msg.reply(
-        "🏆 <b>Global Ranking</b> 🏆\n" +
-        "<b>----------------------------------</b>\n" +
-        leaderboardText,
-        Extra.HTML()
-    );
+    const leaderboardEmbed = new Discord.MessageEmbed(templateEmbed)
+        .setTitle("🏆 Global Ranking 🏆")
+        .setDescription(leaderboardText);
+
+    msg.reply(leaderboardEmbed);
 };
 
 // Send admin the ranking JSON
