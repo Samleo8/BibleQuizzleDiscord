@@ -1040,12 +1040,16 @@ bot.on("channelCreate", trySendWelcome);
 
 // Message and Command handling
 bot.on('message', (msg) => {
-    const args = msg.content.split(/ +/);
+    const msgText = msg.content;
+    const args = msgText.split(/ +/);
     const command = args.shift()
         .toLowerCase();
 
     // Don't listen to bots
     if (msg.author.bot) return;
+
+    // Ignore empty messages
+    if (msg == null) return;
 
     // Commands
     if (msg.content.startsWith(cmdChar)) {
@@ -1069,7 +1073,28 @@ bot.on('message', (msg) => {
         }
     }
     // Normal message (game)
-    else {
-        // console.info("Read message");
+    else if (Game.status == "active") {
+        // Strip non alphanumeric characters from messages and answers
+        const messageText = msgText.replace(regex.non_alphanum, "")
+            .toLowerCase();
+        const answer = _getAnswer()
+            .replace(regex.non_alphanum, "")
+            .toLowerCase();
+
+        Game.idle.reset();
+
+        // Message contains answer!
+        if (messageText.indexOf(answer) != -1) { 
+            // Get necessary information
+            const name = _getName(msg);
+            const user_id = _getUserID(msg);
+
+            Game.question.answerer.push({
+                "user_id": user_id,
+                "name": name
+            });
+
+            _showAnswer(msg);
+        }
     }
 });
