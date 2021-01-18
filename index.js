@@ -820,7 +820,7 @@ _getRanking = (user_id, msg) => {
     if (ind == -1) {
         // Data of user doesn't exist:
         // Add it to the leaderboard array
-        const user_name = (Game.leaderboard[user_id].name == null) ? _getName(msg) : Game.leaderboard[user_id].name;
+        const user_name = (Game.leaderboard != null && Game.leaderboard.hasOwnProperty(user_id)) ? Game.leaderboard[user_id].name : _getName(msg);
 
         Game.global_leaderboard.push({
             "id": user_id,
