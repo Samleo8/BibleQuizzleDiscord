@@ -140,7 +140,7 @@ resetGame = () => {
         "timer": null,
         "interval": 10, // in seconds
         "leaderboard": {},
-        "global_leaderboard": null,
+        "global_leaderboard": [],
         "idle": {
             "questions": 0, // number of questions for which there is no user input
             "threshold": 3, // number of questions before terminating game
@@ -198,13 +198,13 @@ nextQuestion = (msg, args) => {
 
     Game.idle.questions++;
     if (Game.idle.questions > Game.idle.threshold) {
-        // log(Game.idle.questions + " " + Game.idle.threshold);
+        // console.log(Game.idle.questions + " " + Game.idle.threshold);
         stopGame(msg, args);
     }
 
     // Handling of question selection
     if (Game.question.id_list.length == 0) {
-        // log("Reloading questions for category " + Game.category);
+        // console.log("Reloading questions for category " + Game.category);
 
         // Populate the id_list array with to now allow for repeats again
         for (i = 0; i < questions[Game.category].length; i++) {
@@ -333,7 +333,7 @@ let setCategory = (msg, args) => {
 
     // Different category: reset list
     if (newCategory != Game.category) {
-        // log("Question reset for category " + newCategory);
+        // console.log("Question reset for category " + newCategory);
         Game.question.id_list = [];
     }
 
@@ -579,7 +579,7 @@ _showAnswer = (msg) => {
         let scoreboardText = "";
         let score = Game.hints.points[Game.hints.current];
         for (i = 0; i < answerers.length; i++) {
-            const answererName = answerers[i].username;
+            const answererName = answerers[i].name;
             const answererID = answerers[i].id;
 
             scoreboardText += `${Format.asBoldStr(answererName)} +${score}\n`;
@@ -784,16 +784,18 @@ _sortLeaderboard = () => {
 
 // --Get global ranking
 _getGlobalRanking = () => {
+    console.log("Getting global ranking");
+
     // Check if file exists; if not, create it to prevent problems with access permissions
     if (!fs.existsSync("leaderboard.json")) {
-        log("leaderboard.json doesn't exist... creating file..");
+        console.log("leaderboard.json doesn't exist... creating file..");
 
         fs.writeFileSync(
             'leaderboard.json',
             JSON.stringify(Game.global_leaderboard, null, 4)
         );
 
-        log("File leaderboard.json created!");
+        console.log("File leaderboard.json created!");
         return Game.global_leaderboard;
     }
 
@@ -804,7 +806,7 @@ _getGlobalRanking = () => {
 };
 
 // --Get ranking of individual user by `user_id`
-_getRanking = (user_id, ctx) => {
+_getRanking = (user_id, msg) => {
     // First retrieve array data from leaderboard.json
     _getGlobalRanking();
 
@@ -818,9 +820,11 @@ _getRanking = (user_id, ctx) => {
     if (ind == -1) {
         // Data of user doesn't exist:
         // Add it to the leaderboard array
+        const user_name = (Game.leaderboard[user_id].name == null) ? _getName(msg) : Game.leaderboard[user_id].name;
+
         Game.global_leaderboard.push({
             "id": user_id,
-            "name": Game.leaderboard[user_id].name,
+            "name": user_name,
             "score": 0
         });
 
@@ -829,11 +833,11 @@ _getRanking = (user_id, ctx) => {
 
         let data = JSON.stringify(Game.global_leaderboard, null, 4);
 
-        log("Global leaderboard: " + data);
+        console.log("Global leaderboard: " + data);
 
         fs.writeFileSync('leaderboard.json', data);
 
-        log("File written for new user " + user_id + ", data: " + data);
+        console.log("File written for new user " + user_id + ", data: " + data);
 
         // Return new index
         ind = Game.global_leaderboard.findIndex((item, i) => {
@@ -848,10 +852,10 @@ _getRanking = (user_id, ctx) => {
 };
 
 // --Update leaderboard for user `user_id` with score `score`
-_setRankingIndividual = (user_id, score, ctx) => {
-    if (user_id == null /*|| typeof user_id == "undefined"*/ ) return;
+_setRankingIndividual = (user_id, score, msg) => {
+    if (user_id == null) return;
 
-    let ind = _getRanking(user_id, ctx);
+    let ind = _getRanking(user_id, msg);
 
     // Change score
     if (!isNaN(parseInt(score)) && !isNaN(parseInt(ind))) {
@@ -861,7 +865,7 @@ _setRankingIndividual = (user_id, score, ctx) => {
 
 // Set multiple rankings at once to save time on constantly sorting
 // Also generate the output text
-_setGlobalRanking = (scoreboardArr, ctx) => {
+_setGlobalRanking = (scoreboardArr, msg) => {
     let scoreboardText = "";
 
     // First sort the top scorers from `scoreboardArr` in descending order (highest score first)
@@ -878,7 +882,7 @@ _setGlobalRanking = (scoreboardArr, ctx) => {
                 "(" + scoreboardArr[i].score + " points)"
             ) + "\n";
 
-        _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
+        _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, msg);
     }
 
     // Sort and save
@@ -890,7 +894,7 @@ _setGlobalRanking = (scoreboardArr, ctx) => {
     );
 
     // TODO: Fix issue #15, then remove
-    _sendAdminJSONRanking(ctx);
+    _sendAdminJSONRanking(msg);
 
     return scoreboardText;
 };
@@ -943,7 +947,7 @@ _showRanking = (msg, args) => {
 // Send admin the ranking JSON
 let prevSentAdminMessageID = 0;
 
-_sendAdminJSONRanking = (ctx) => {
+_sendAdminJSONRanking = (msg) => {
     _getGlobalRanking();
 
     const adminUser = bot.users.get(ADMIN_ID);
@@ -954,7 +958,7 @@ _sendAdminJSONRanking = (ctx) => {
 
     //     adminUser.deleteMessage(chatID, msgID)
     //         .catch((reason) => {
-    //             log('Failed to delete message: ' + reason, "ERROR");
+    //             console.log('Failed to delete message: ' + reason, "ERROR");
     //         });
     // }
 
@@ -963,7 +967,7 @@ _sendAdminJSONRanking = (ctx) => {
             // TODO: check this
             prevSentAdminMessageID = messageReturn.id;
         }, (failureReason) => {
-            log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
+            console.log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
 };
 
@@ -1084,7 +1088,7 @@ bot.on('message', (msg) => {
         Game.idle.reset();
 
         // Message contains answer!
-        if (messageText.indexOf(answer) != -1) { 
+        if (messageText.indexOf(answer) != -1) {
             // Get necessary information
             const name = _getName(msg);
             const user_id = _getUserID(msg);
