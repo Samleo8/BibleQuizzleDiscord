@@ -696,17 +696,13 @@ nextCommand = (msg, args) => {
 
     Game.idle.reset();
 
-    // TODO: Get ID properly
     let id;
-
-    if (args != null && args.length != undefined && args.has(id)) {
-        id = user.id;
+    if (args != null && args.length != undefined && args.hasOwnProperty(id)) {
+        id = args.id;
     }
     else {
         id = _getUserID(msg);
     }
-
-    console.log("ID: ", id);
 
     Game.nexts.current[id] = 1;
 
@@ -820,7 +816,8 @@ _getRanking = (user_id, msg) => {
     if (ind == -1) {
         // Data of user doesn't exist:
         // Add it to the leaderboard array
-        const user_name = (Game.leaderboard != null && Game.leaderboard.hasOwnProperty(user_id)) ? Game.leaderboard[user_id].name : _getName(msg);
+        const user_name = (Game.leaderboard != null && Game.leaderboard.hasOwnProperty(user_id)) ? Game.leaderboard[
+            user_id].name : _getName(msg);
 
         Game.global_leaderboard.push({
             "id": user_id,
@@ -935,7 +932,8 @@ _showRanking = (msg, args) => {
 
     // User is not part of the top 20
     if (ind >= 20) {
-        leaderboardText += Format.asBoldStr("👉 " + Game.global_leaderboard[ind].name + " " + Format.asItalicStr("(" +
+        leaderboardText += Format.asBoldStr("👉 " + Game.global_leaderboard[ind].name + " " + Format.asItalicStr(
+            "(" +
             Game.global_leaderboard[ind].score + " points)") + " 👈");
     }
 
@@ -954,6 +952,7 @@ _sendAdminJSONRanking = (msg) => {
 
     const adminUser = bot.users.cache.get(ADMIN_ID);
 
+    console.log(adminUser);
     // TODO: Delete any old messages sent by the bot
     // if (prevSentAdminMessageID != 0) {
     //     const msgID = prevSentAdminMessageID;
@@ -964,13 +963,15 @@ _sendAdminJSONRanking = (msg) => {
     //         });
     // }
 
-    adminUser.send(JSON.stringify(Game.global_leaderboard, null, 4))
-        .then((messageReturn) => {
-            // TODO: check this
-            prevSentAdminMessageID = messageReturn.id;
-        }, (failureReason) => {
-            console.log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
-        });
+    if (adminUser != null) {
+        adminUser.send(JSON.stringify(Game.global_leaderboard, null, 4))
+        // .then((messageReturn) => {
+        //     // TODO: check this
+        //     prevSentAdminMessageID = messageReturn.id;
+        // }, (failureReason) => {
+        //     console.log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
+        // });
+    }
 };
 
 // Stop Game function
