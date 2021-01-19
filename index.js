@@ -868,6 +868,8 @@ _setRankingIndividual = (user_id, score, msg) => {
 _setGlobalRanking = (scoreboardArr, msg) => {
     let scoreboardText = "";
 
+    console.log("Setting global ranking", scoreboardArr);
+
     // First sort the top scorers from `scoreboardArr` in descending order (highest score first)
     scoreboardArr.sort(function(a, b) {
         return b.score - a.score;
@@ -950,7 +952,7 @@ let prevSentAdminMessageID = 0;
 _sendAdminJSONRanking = (msg) => {
     _getGlobalRanking();
 
-    const adminUser = bot.users.get(ADMIN_ID);
+    const adminUser = bot.users.cache.get(ADMIN_ID);
 
     // TODO: Delete any old messages sent by the bot
     // if (prevSentAdminMessageID != 0) {
@@ -1094,7 +1096,7 @@ bot.on('message', (msg) => {
             const user_id = _getUserID(msg);
 
             Game.question.answerer.push({
-                "user_id": user_id,
+                "id": user_id,
                 "name": name
             });
 
