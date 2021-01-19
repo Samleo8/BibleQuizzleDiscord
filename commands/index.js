@@ -11,4 +11,5 @@ module.exports = {
     quack: require('./quack'),
     help: require('./help'),
     suggest: require('./suggest'),
+    debug: require('./debug'),
 };

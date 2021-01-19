@@ -10,14 +10,15 @@
 require('dotenv')
     .config();
 
-module.exports = {
-    name: "biblequizzle"
-};
-
 const fs = require('fs');
 
 const Discord = require('discord.js');
 const bot = new Discord.Client();
+
+module.exports = {
+    name: "biblequizzle",
+    bot: bot
+};
 
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
@@ -26,8 +27,16 @@ const botCommands = require('./commands');
 const TOKEN = process.env.BOT_TOKEN;
 bot.login(TOKEN);
 
+let adminUser;
+
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
+
+    // Fetch the ADMIN ID and store in cache immediately
+    bot.users.fetch(ADMIN_ID)
+        .then((user) => {
+            adminUser = user;
+        });
 });
 
 // Load libraries and other files
@@ -941,32 +950,30 @@ _showRanking = (msg, args) => {
 };
 
 // Send admin the ranking JSON
-let prevSentAdminMessageID = 0;
+let prevSentAdminMessage = null;
 
 _sendAdminJSONRanking = (msg) => {
     _getGlobalRanking();
 
-    const adminUser = bot.users.cache.get(ADMIN_ID);
+    if (adminUser == null) return;
 
-    // TODO: Delete any old messages sent by the bot
-    // if (prevSentAdminMessageID != 0) {
-    //     const msgID = prevSentAdminMessageID;
-
-    //     adminUser.deleteMessage(chatID, msgID)
-    //         .catch((reason) => {
-    //             console.log('Failed to delete message: ' + reason, "ERROR");
-    //         });
-    // }
-
-    if (adminUser != null) {
-        adminUser.send(JSON.stringify(Game.global_leaderboard, null, 4))
-        // .then((messageReturn) => {
-        //     // TODO: check this
-        //     prevSentAdminMessageID = messageReturn.id;
-        // }, (failureReason) => {
-        //     console.log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
-        // });
+    const messageContent = JSON.stringify(Game.global_leaderboard, null, 4);
+    // Delete any old messages sent by the bot
+    if (prevSentAdminMessage) {
+        prevSentAdminMessage.delete();
     }
+    
+    adminUser.send(messageContent)
+        .then((messageReturn) => {
+            // TODO: check this
+            prevSentAdminMessage = messageReturn;
+        }, (failureReason) => {
+            console.log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
+        });
+};
+
+module.exports.sendAdminJSONRanking = (msg) => {
+    _sendAdminJSONRanking(msg);
 };
 
 // Stop Game function
