@@ -958,14 +958,15 @@ _sendAdminJSONRanking = (msg) => {
     if (adminUser == null) return;
 
     const messageContent = JSON.stringify(Game.global_leaderboard, null, 4);
+
     // Delete any old messages sent by the bot
     if (prevSentAdminMessage) {
         prevSentAdminMessage.delete();
     }
     
+    // Send message and pin it
     adminUser.send(messageContent)
         .then((messageReturn) => {
-            // TODO: check this
             prevSentAdminMessage = messageReturn;
             messageReturn.pin();
         }, (failureReason) => {
