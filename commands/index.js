@@ -12,4 +12,5 @@ module.exports = {
     help: require('./help'),
     suggest: require('./suggest'),
     debug: require('./debug'),
+    star: require('./star'),
 };
