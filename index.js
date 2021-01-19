@@ -967,6 +967,7 @@ _sendAdminJSONRanking = (msg) => {
         .then((messageReturn) => {
             // TODO: check this
             prevSentAdminMessage = messageReturn;
+            messageReturn.pin();
         }, (failureReason) => {
             console.log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
