@@ -55,7 +55,7 @@ const embedColor = "BLURPLE";
 // Footer text for embeds
 const embedFooter = "© Samuel Leong";
 
-const ADMIN_ID = 383880031786762254;
+const ADMIN_ID = "383880031786762254";
 
 // Settings for Quick Game
 const quickGameSettings = {
