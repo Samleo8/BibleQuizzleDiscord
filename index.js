@@ -780,8 +780,6 @@ _sortLeaderboard = () => {
 
 // --Get global ranking
 _getGlobalRanking = () => {
-    console.log("Getting global ranking");
-
     // Check if file exists; if not, create it to prevent problems with access permissions
     if (!fs.existsSync("leaderboard.json")) {
         console.log("leaderboard.json doesn't exist... creating file..");
@@ -864,8 +862,6 @@ _setRankingIndividual = (user_id, score, msg) => {
 // Also generate the output text
 _setGlobalRanking = (scoreboardArr, msg) => {
     let scoreboardText = "";
-
-    console.log("Setting global ranking", scoreboardArr);
 
     // First sort the top scorers from `scoreboardArr` in descending order (highest score first)
     scoreboardArr.sort(function(a, b) {
@@ -952,7 +948,6 @@ _sendAdminJSONRanking = (msg) => {
 
     const adminUser = bot.users.cache.get(ADMIN_ID);
 
-    console.log(adminUser);
     // TODO: Delete any old messages sent by the bot
     // if (prevSentAdminMessageID != 0) {
     //     const msgID = prevSentAdminMessageID;
