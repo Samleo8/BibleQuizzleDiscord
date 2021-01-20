@@ -312,7 +312,8 @@ const categoriesAsCode = [];
 // Dynamically reate categories as code array as well as the catEmbed fields
 for (i = 0; i < categories.length; i++) {
     categoriesAsCode.push(
-        categories[i].toLowerCase().replace(regex.non_alphanum, "_")
+        categories[i].toLowerCase()
+        .replace(regex.non_alphanum, "_")
     );
 
     catEmbed.addField(
@@ -328,9 +329,6 @@ let _sendCatEmbed = (msg, str) => {
             async (sentEmbed) => {
                 // Enforce order
                 try {
-                    for (ii = 0; ii < categories.length; ii++)
-                        await sentEmbed.react(catEmojis[ii]);
-
                     const filter =
                         (reactions, user) => {
                             return catEmojis.includes(reactions.emoji.name) && !user.bot;
@@ -340,6 +338,9 @@ let _sendCatEmbed = (msg, str) => {
                         max: 1,
                         time: maxTime
                     });
+
+                    for (ii = 0; ii < categories.length; ii++)
+                        await sentEmbed.react(catEmojis[ii]);
 
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
@@ -423,9 +424,6 @@ let _sendRoundsEmbed = (msg, str) => {
             async (sentEmbed) => {
                 // Enforce order
                 try {
-                    for (ii in roundsEmojis)
-                        await sentEmbed.react(roundsEmojis[ii]);
-
                     const filter =
                         (reactions, user) => {
                             return roundsEmojis.includes(reactions.emoji.name) && !user.bot;
@@ -435,6 +433,9 @@ let _sendRoundsEmbed = (msg, str) => {
                         max: 1,
                         time: maxTime
                     });
+
+                    for (ii in roundsEmojis)
+                        await sentEmbed.react(roundsEmojis[ii]);
 
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
@@ -580,9 +581,6 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
             async (sentEmbed) => {
                 // Enforce order
                 try {
-                    await sentEmbed.react(hintEmoji);
-                    await sentEmbed.react(nextEmoji);
-
                     const filter = (reactions, user) => {
                         return [hintEmoji, nextEmoji].includes(reactions.emoji.name) &&
                             !user.bot
@@ -593,6 +591,9 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                         max: Game.nexts.total,
                         time: questionWaitTime
                     });
+
+                    await sentEmbed.react(hintEmoji);
+                    await sentEmbed.react(nextEmoji);
 
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
@@ -696,6 +697,7 @@ nextHintForced = (msg, args) => {
     }
     else {
         username = _getName(msg);
+        console.log("got username from msg");
     }
 
     msg.reply(`${username} asked for a ${Format.asCmdStr("hint")}`);
