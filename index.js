@@ -273,7 +273,7 @@ nextQuestion = (msg, args) => {
     // Handling of timer: Hint handler every `interval` seconds
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
-        () => nextHint(msg),
+        () => nextHint(msg, args),
         Game.interval * 1000
     );
 };
@@ -549,7 +549,7 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                         console.info("User", user.username, "reacted with:", clickedEmoji);
 
                         if (clickedEmoji == hintEmoji) {
-                            nextHint(msg, user);
+                            nextHintForced(msg, user);
                         }
                         else if (clickedEmoji == nextEmoji) {
                             nextCommand(msg, user);
@@ -638,10 +638,28 @@ _showAnswer = (msg) => {
 };
 
 /*==================HINTS AND NEXTS===================*/
+nextHintForced = (msg, args) => {
+    // NOTE: args can either be from a message command or from an emoji click
+    let username;
+    if (args != null && args.length != undefined && args.hasOwnProperty("username")) {
+        username = args.username;
+    }
+    else {
+        username = _getName(msg);
+    }
+
+    msg.reply(`${username} asked for a ${Format.asCmdStr("hint")}`);
+
+    nextHint(msg, args);
+}
+
 // Hint Handler
 nextHint = (msg, args) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
+
+    // Clear timeout first
+    clearTimeout(Game.timer);
 
     /*Total of 4 hints:
         - -1%    |    Only the question     |    100pts
@@ -691,7 +709,6 @@ nextHint = (msg, args) => {
     Game.hints.text = hint; // save back into `Game` object
 
     // Create new handler every `interval` seconds
-    clearTimeout(Game.timer);
     Game.timer = setTimeout(
         () => nextHint(msg, args),
         Game.interval * 1000
@@ -705,13 +722,17 @@ nextCommand = (msg, args) => {
 
     Game.idle.reset();
 
-    let id;
-    if (args != null && args.length != undefined && args.hasOwnProperty(id)) {
+    let id, username;
+    if (args != null && args.length != undefined && args.hasOwnProperty("id")) {
         id = args.id;
+        username = args.username;
     }
     else {
         id = _getUserID(msg);
+        username = _getName(msg);
     }
+
+    msg.reply(`${username} voted to ${Format.asCmdStr("skip")}`);
 
     Game.nexts.current[id] = 1;
 
@@ -719,7 +740,8 @@ nextCommand = (msg, args) => {
         .length >= Game.nexts.total || msg.guild === null)
         return _showAnswer(msg);
 
-    return nextHint(msg, args);
+    // TODO: To show hint or not to show?
+    // return nextHint(msg, args);
 };
 
 /*================STOPPING AND SCORES===================*/
@@ -963,7 +985,7 @@ _sendAdminJSONRanking = (msg) => {
     if (prevSentAdminMessage) {
         prevSentAdminMessage.delete();
     }
-    
+
     // Send message and pin it
     adminUser.send(messageContent)
         .then((messageReturn) => {
@@ -999,7 +1021,7 @@ bot.commands.set(cmdChar + "quick", {
 });
 
 bot.commands.set(cmdChar + "hint", {
-    execute: nextHint
+    execute: nextHintForced
 });
 
 bot.commands.set(cmdChar + "next", {
