@@ -50,7 +50,7 @@ const logoURL = "attachment://logo.png";
 const embedColor = "BLUE";
 
 // Footer text for embeds
-const embedFooter = "© Samuel Leong";
+const embedFooter = "© Samuel Leong | Created for CMU IVCF";
 
 const ADMIN_ID = "383880031786762254";
 
