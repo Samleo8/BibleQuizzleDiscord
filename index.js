@@ -148,6 +148,8 @@ resetGame = () => {
         },
         "timer": null,
         "interval": 10, // in seconds
+        "answerWaitTimer": null,
+        "answerWaitInterval": 500, // in ms
         "leaderboard": {},
         "global_leaderboard": [],
         "idle": {
@@ -628,8 +630,11 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
         );
 };
 
-// TODO: Embedded thing for this
 _showAnswer = (msg) => {
+    // First clear answer wait timer
+    clearTimeout(Game.answerWaitTimer);
+
+    // Remove dupicate answerers
     const answerers = Library.removeDuplicates(Game.question.answerer);
 
     const answerEmbed = new Discord.MessageEmbed(templateEmbed)
@@ -1182,12 +1187,18 @@ bot.on('message', (msg) => {
             const name = _getName(msg);
             const user_id = _getUserID(msg);
 
+            // If valid, set a timer to wait for other answers (in a short interval, < 1s) before showing
+            if (Game.question.answerer.length >= 0) {
+                Game.answerWaitTimer = setTimeout(
+                    () => _showAnswer(msg),
+                    Game.answerWaitInterval
+                );
+            }
+
             Game.question.answerer.push({
                 "id": user_id,
                 "name": name
             });
-
-            _showAnswer(msg);
         }
     }
 });
