@@ -701,10 +701,8 @@ nextHintForced = (msg, args) => {
     // NOTE: args can either be from a message command or from an emoji click
     let username;
 
-    if (args.length != undefined) console.log(args.length, args.has("username"));
-
-    if (args != null && args.length != undefined && args.has("username")) {
-        username = args.username;
+    if (args != null && args.length != undefined && args.hasOwnProperty("author")) {
+        username = _getName(args);
     }
     else {
         username = _getName(msg);
