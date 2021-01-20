@@ -41,16 +41,13 @@ const suggestURL = "https://forms.gle/aqZ3MK8QrBGzv9PEA";
 // URL to GitHub repo
 const githubURL = "https://github.com/Samleo8/BibleQuizzleDiscord";
 
-// URL to logo
+// Logo
+// TODO: Make one!
 const logoAttachment = new Discord.MessageAttachment('./img/logo.png', 'logo.png');
-
-// TODO: make one!
-//-- NOTE: 
 const logoURL = "attachment://logo.png";
-// const logoURL = "https://raw.githubusercontent.com/Samleo8/BibleQuizzleDiscord/master/img/logo.png";
 
 // Color for Embed
-const embedColor = "BLURPLE";
+const embedColor = "BLUE";
 
 // Footer text for embeds
 const embedFooter = "© Samuel Leong";
