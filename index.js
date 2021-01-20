@@ -339,9 +339,6 @@ let _sendCatEmbed = (msg, str) => {
                         time: maxTime
                     });
 
-                    for (ii = 0; ii < categories.length; ii++)
-                        await sentEmbed.react(catEmojis[ii]);
-
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
 
@@ -356,6 +353,10 @@ let _sendCatEmbed = (msg, str) => {
                     collector.on('end', (reaction, user) => {
                         console.info(`Either hit max responses or no repsonses after ${maxTime/1000}s`);
                     });
+
+                    // Bot will send the reactions at the end
+                    for (ii = 0; ii < categories.length; ii++)
+                        await sentEmbed.react(catEmojis[ii]);
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
@@ -434,9 +435,6 @@ let _sendRoundsEmbed = (msg, str) => {
                         time: maxTime
                     });
 
-                    for (ii in roundsEmojis)
-                        await sentEmbed.react(roundsEmojis[ii]);
-
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
 
@@ -451,6 +449,10 @@ let _sendRoundsEmbed = (msg, str) => {
                     collector.on('end', (reaction, user) => {
                         console.info(`Either hit max responses or no repsonses after ${maxTime/1000}s`);
                     });
+
+                    // Bot will send reactions
+                    for (ii in roundsEmojis)
+                        await sentEmbed.react(roundsEmojis[ii]);
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
@@ -593,18 +595,19 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                         time: questionWaitTime
                     });
 
-                    await sentEmbed.react(hintEmoji);
-                    await sentEmbed.react(nextEmoji);
-
                     collector.on('collect', (reaction, user) => {
                         const clickedEmoji = reaction.emoji.name;
                         console.info("User", user.username, "reacted with:", clickedEmoji);
 
+                        const newArgs = {
+                            "author": user,
+                        };
+
                         if (clickedEmoji == hintEmoji) {
-                            nextHintForced(msg, user);
+                            nextHintForced(msg, newArgs);
                         }
                         else if (clickedEmoji == nextEmoji) {
-                            nextCommand(msg, user);
+                            nextCommand(msg, newArgs);
                         }
                     });
 
@@ -613,6 +616,10 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
                             `Either hit max responses, or no response after ${questionWaitTime/1000}s`
                         );
                     });
+
+                    // Bot sends reactions after collectors initialised
+                    await sentEmbed.react(hintEmoji);
+                    await sentEmbed.react(nextEmoji);
                 }
                 catch (err) {
                     console.error("One of the reactions failed: ", err);
@@ -693,12 +700,14 @@ _showAnswer = (msg) => {
 nextHintForced = (msg, args) => {
     // NOTE: args can either be from a message command or from an emoji click
     let username;
-    if (args != null && args.length != undefined && args.hasOwnProperty("username")) {
+
+    if (args.length != undefined) console.log(args.length, args.has("username"));
+
+    if (args != null && args.length != undefined && args.has("username")) {
         username = args.username;
     }
     else {
         username = _getName(msg);
-        console.log("got username from msg");
     }
 
     msg.reply(`${username} asked for a ${Format.asCmdStr("hint")}`);
@@ -776,9 +785,9 @@ nextCommand = (msg, args) => {
     Game.idle.reset();
 
     let id, username;
-    if (args != null && args.length != undefined && args.hasOwnProperty("id")) {
-        id = args.id;
-        username = args.username;
+    if (args != null && args.length != undefined && args.hasOwnProperty("author")) {
+        id = _getUserID(args);
+        username = _getName(args);
     }
     else {
         id = _getUserID(msg);
