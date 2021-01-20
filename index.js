@@ -351,7 +351,7 @@ let _sendCatEmbed = (msg, str) => {
                     });
 
                     collector.on('end', (reaction, user) => {
-                        console.info(`Either hit max responses or no repsonses after ${maxTime/1000}s`);
+                        console.info(`Either hit max responses or no responses after ${maxTime/1000}s`);
                     });
 
                     // Bot will send the reactions at the end
