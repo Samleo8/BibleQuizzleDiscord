@@ -581,10 +581,11 @@ _showQuestion = (msg, questionText, categoriesText, hintText) => {
             async (sentEmbed) => {
                 // Enforce order
                 try {
-                    const filter = (reactions, user) => {
-                        return [hintEmoji, nextEmoji].includes(reactions.emoji.name) &&
-                            !user.bot
-                    };
+                    const filter =
+                        (reactions, user) => {
+                            return [hintEmoji, nextEmoji].includes(reactions.emoji.name) &&
+                                !user.bot
+                        };
 
                     const questionWaitTime = Game.interval * 1.5 * 1000; // a bit extra time
                     const collector = sentEmbed.createReactionCollector(filter, {
