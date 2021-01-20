@@ -300,24 +300,73 @@ let initGame = (msg, _) => {
 };
 
 // Make Category Embed from `categories`
+// NOTE: catEmojis is over populated
+const catEmojis = ['📖', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟', '🅰️', '🅱'];
 const catEmbed = new Discord.MessageEmbed(templateEmbed)
     .setTitle("Categories")
-    .setDescription("Choose a valid category with `!category <valid category name>`");
+    .setDescription(
+        "Choose a valid category with `!category <valid category name>` or by clicking the associated emoji below");
+const categoriesAsCode = [];
 
 // First row is single "All" button
-// catEmbed.addField('\u200B', '\u200B', false); //empty line
-catEmbed.addField(categories[0], "📖`" + categories[0].toLowerCase()
-    .replace(regex.non_alphanum, "_") + "`", false);
+// Dynamically reate categories as code array as well as the catEmbed fields
+for (i = 0; i < categories.length; i++) {
+    categoriesAsCode.push(
+        categories[i].toLowerCase().replace(regex.non_alphanum, "_")
+    );
 
-for (i = 1; i < categories.length; i++) {
-    catEmbed.addField(categories[i], "📖`" + categories[i].toLowerCase()
-        .replace(regex.non_alphanum, "_") + "`", true);
+    catEmbed.addField(
+        catEmojis[i] + " " + categories[i],
+        Format.asCodeStr(categoriesAsCode[i]),
+        (i != 0) // first line is non-inline
+    );
 }
+
+let _sendCatEmbed = (msg, str) => {
+    msg.reply(str, catEmbed)
+        .then(
+            async (sentEmbed) => {
+                // Enforce order
+                try {
+                    for (ii = 0; ii < categories.length; ii++)
+                        await sentEmbed.react(catEmojis[ii]);
+
+                    const filter =
+                        (reactions, user) => {
+                            return catEmojis.includes(reactions.emoji.name) && !user.bot;
+                        };
+
+                    const collector = sentEmbed.createReactionCollector(filter, {
+                        max: 1,
+                        time: maxTime
+                    });
+
+                    collector.on('collect', (reaction, user) => {
+                        const clickedEmoji = reaction.emoji.name;
+
+                        console.info("User", user.username, "reacted with:", clickedEmoji);
+                        const clickedIndex = catEmojis.indexOf(clickedEmoji);
+
+                        if (clickedIndex != -1) {
+                            setCategory(sentEmbed, [categoriesAsCode[clickedIndex]]);
+                        }
+                    });
+
+                    collector.on('end', (reaction, user) => {
+                        console.info(`Either hit max responses or no repsonses after ${maxTime/1000}s`);
+                    });
+                }
+                catch (err) {
+                    console.error("One of the reactions failed: ", err);
+                }
+            }
+        );
+};
 
 let chooseCategory = (msg, _) => {
     Game.status = 'choosing_category';
 
-    msg.reply(`Please choose a category or start a ${Format.asCmdStr("quick")} game:`, catEmbed);
+    _sendCatEmbed(msg, `Please choose a category or start a ${Format.asCmdStr("quick")} game:`);
 };
 
 let setCategory = (msg, args) => {
@@ -327,7 +376,7 @@ let setCategory = (msg, args) => {
     }
 
     if (args.length < 1) {
-        msg.reply("Please choose a proper category:", catEmbed);
+        _sendCatEmbed(msg, "Please choose a proper category:");
         return;
     }
 
@@ -336,7 +385,7 @@ let setCategory = (msg, args) => {
         .replace(regex.non_alphanum, "_");
 
     if (newCategory == null || !questions.hasOwnProperty(newCategory)) {
-        msg.reply(`Invalid category *${heardString}*. Please choose a proper one:`, catEmbed);
+        _sendCatEmbed(msg, `Invalid category *${heardString}*. Please choose a proper one:`);
         return;
     }
 
@@ -348,7 +397,7 @@ let setCategory = (msg, args) => {
 
     Game.category = newCategory;
 
-    msg.reply(`Category *${heardString}* chosen!`);
+    msg.reply(`Category ${Format.asBoldStr(heardString)} chosen!`);
     chooseRounds(msg);
 };
 
@@ -358,7 +407,8 @@ const roundsNumbers = [10, 20, 50, 100];
 const roundsEmbed = new Discord.MessageEmbed(templateEmbed)
     .setTitle("Rounds")
     .setDescription(
-        `Choose number of rounds/questions with ${Format.asCmdStr("rounds <number of rounds>")}\nOr click one of the emojis below.`
+        `Choose number of rounds/questions with ${Format.asCmdStr("rounds <number of rounds>")}\n` +
+        "Or click one of the emojis below."
     );
 
 for (i in roundsNumbers) {
