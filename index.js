@@ -32,6 +32,8 @@ let adminUser;
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
 
+    bot.user.setAvatar(logoURL);
+    
     // Fetch the ADMIN ID and store in cache immediately
     bot.users.fetch(ADMIN_ID)
         .then((user) => {
