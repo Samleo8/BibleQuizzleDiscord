@@ -33,7 +33,7 @@ bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
 
     bot.user.setAvatar(logoURL);
-    
+
     // Fetch the ADMIN ID and store in cache immediately
     bot.users.fetch(ADMIN_ID)
         .then((user) => {
@@ -62,9 +62,6 @@ const {
     logoAttachment,
     ADMIN_ID
 } = require('./constants.js');
-const {
-    asStrikeThroughStr
-} = require('./format.js');
 
 let i, j;
 
@@ -76,7 +73,7 @@ const templateEmbed = new Discord.MessageEmbed()
     .setAuthor("Bible Quizzle", logoURL, githubURL)
     .setThumbnail(logoURL)
     .setFooter(embedFooter)
-    .setTimestamp()
+    .setTimestamp();
 
 /*==================WELCOME MESSAGE===================*/
 // Bot Commands
@@ -191,7 +188,7 @@ startQuickGame = (msg, args) => {
     args = ['quick'];
 
     startGame(msg, args);
-}
+};
 
 // Next Question handler
 nextQuestion = (msg, args) => {
@@ -359,7 +356,7 @@ let _sendCatEmbed = (msg, str) => {
                     });
 
                     // Bot will send the reactions at the end
-                    for (ii = 0; ii < categories.length; ii++)
+                    for (var ii = 0; ii < categories.length; ii++)
                         await sentEmbed.react(catEmojis[ii]);
                 }
                 catch (err) {
@@ -455,7 +452,7 @@ let _sendRoundsEmbed = (msg, str) => {
                     });
 
                     // Bot will send reactions
-                    for (ii in roundsEmojis)
+                    for (var ii in roundsEmojis)
                         await sentEmbed.react(roundsEmojis[ii]);
                 }
                 catch (err) {
@@ -499,7 +496,7 @@ let setRounds = (msg, args) => {
     Game.rounds.total = numRounds;
 
     startGame(msg, args);
-}
+};
 
 // ================UI FOR QUESTIONS, ANSWERS AND SCORES=================// 
 _getQuestion = () => {
@@ -548,7 +545,7 @@ _getName = (msg) => {
 
 _getUserID = (msg) => {
     return msg.author.id;
-}
+};
 
 const hintEmoji = "❔";
 const nextEmoji = "⏭️";
@@ -640,7 +637,7 @@ _showAnswer = (msg) => {
     const answerers = Library.removeDuplicates(Game.question.answerer);
 
     const answerEmbed = new Discord.MessageEmbed(templateEmbed)
-        .setTitle(`Results: Round ${Game.rounds.current} of ${Game.rounds.total}`)
+        .setTitle(`Results: Round ${Game.rounds.current} of ${Game.rounds.total}`);
 
     if (Game.question.answerer.length == 0) {
         answerEmbed.addField(
@@ -718,7 +715,7 @@ nextHintForced = (msg, args) => {
     msg.reply(`${username} asked for a ${Format.asCmdStr("hint")}`);
 
     nextHint(msg, args);
-}
+};
 
 // Hint Handler
 nextHint = (msg, args) => {
@@ -1068,7 +1065,7 @@ module.exports.sendAdminJSONRanking = (msg) => {
 };
 
 // Stop Game function
-stopGame = (msg) => {
+stopGame = (msg, args) => {
     clearTimeout(Game.timer);
 
     if (Game.status.indexOf("active") != -1) displayScores(msg);

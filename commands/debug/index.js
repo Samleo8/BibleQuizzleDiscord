@@ -1,7 +1,3 @@
-const {
-    ADMIN_ID
-} = require("../../constants.js");
-
 const Main = require("../../index.js");
 
 module.exports = {
