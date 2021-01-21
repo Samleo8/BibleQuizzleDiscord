@@ -32,7 +32,7 @@ let adminUser;
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`);
 
-    bot.user.setAvatar(logoURL);
+    bot.user.setAvatar(logoImageURL);
 
     // Fetch the ADMIN ID and store in cache immediately
     bot.users.fetch(ADMIN_ID)
@@ -60,7 +60,8 @@ const {
     embedColor,
     embedFooter,
     logoAttachment,
-    ADMIN_ID
+    ADMIN_ID,
+    logoImageURL
 } = require('./constants.js');
 
 let i, j;

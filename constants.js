@@ -43,7 +43,8 @@ const githubURL = "https://github.com/Samleo8/BibleQuizzleDiscord";
 
 // Logo
 // TODO: Make one!
-const logoAttachment = new Discord.MessageAttachment('./img/logo.png', 'logo.png');
+const logoImageURL = './img/logo.png';
+const logoAttachment = new Discord.MessageAttachment(logoImageURL, 'logo.png');
 const logoURL = "attachment://logo.png";
 
 // Color for Embed
@@ -72,6 +73,7 @@ module.exports.regex = regex;
 module.exports.categories = categories;
 module.exports.embedColor = embedColor;
 module.exports.embedFooter = embedFooter;
+module.exports.logoImageURL = logoImageURL;
 module.exports.logoAttachment = logoAttachment;
 module.exports.logoURL = logoURL;
 module.exports.githubURL = githubURL;
