@@ -968,7 +968,7 @@ _setGlobalRanking = (scoreboardArr, msg) => {
     for (i = 0; i < scoreboardArr.length; i++) {
         scoreboardText += Format.asBoldStr(
                 parseInt(i + 1) + ". " + scoreboardArr[i].name
-            ) +
+            ) + " " +
             Format.asItalicStr(
                 "(" + scoreboardArr[i].score + " points)"
             ) + "\n";
