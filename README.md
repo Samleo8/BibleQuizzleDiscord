@@ -1,4 +1,4 @@
-# <img src="./img/logo.png" height="50px" width="50px"> Bible Quizzle (Discord Bot)
+# [<img src="./img/logo.png" height="36px" width="36px">](https://discord.com/oauth2/authorize?client_id=748910073635537006&permissions=75776&scope=bot) Bible Quizzle (Discord Bot)
 
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Samleo8/BibleQuizzleDiscord.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Samleo8/BibleQuizzleDiscord/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/Samleo8/BibleQuizzleDiscord.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Samleo8/BibleQuizzleDiscord/context:javascript)
