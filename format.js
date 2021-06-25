@@ -1,4 +1,4 @@
-const cmdChar = "!";
+const cmdChar = "/";
 
 module.exports = {
     name: "format",
